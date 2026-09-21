@@ -1,6 +1,6 @@
 from __future__ import annotations
 from services.memory import init_db, save_message, get_history
-
+import os
 import csv
 import math
 import random
@@ -1242,31 +1242,35 @@ def update_live_state() -> dict:
         )
 
         label = class_from_ground_truth(gt)
-
         training_row = feature_row_from_observation(
             observation
         )
 
         training_row["risk_class"] = label
 
-        append_csv(
-            DATA_DIR / "risk_training.csv",
-            training_row,
-        )
+        # Vercel's deployed filesystem is read-only.
+        # Keep live telemetry generation working without
+        # trying to persist runtime data into the repository.
+        if os.getenv("VERCEL") != "1":
+            append_csv(
+                DATA_DIR / "risk_training.csv",
+                training_row,
+            )
 
         training_rows_since_retrain += 1
 
-        append_csv(
-            SENSOR_HISTORY_PATH,
-            {
-                "timestamp": current_iso(),
-                "zone": zone,
-                **training_row,
-                "model_risk": prediction["risk"],
-                "model_confidence": prediction["confidence"],
-                "synthetic_outcome": label,
-            },
-        )
+        if os.getenv("VERCEL") != "1":
+            append_csv(
+                SENSOR_HISTORY_PATH,
+                {
+                    "timestamp": current_iso(),
+                    "zone": zone,
+                    **training_row,
+                    "model_risk": prediction["risk"],
+                    "model_confidence": prediction["confidence"],
+                    "synthetic_outcome": label,
+                },
+            )
 
         cam = camera_event_for_zone(
             zone,
