@@ -1,0 +1,12 @@
+[project]
+name = "coal-mine-monitor"
+version = "1.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "Flask==3.0.3",
+    "numpy>=1.26",
+    "pandas>=2.1",
+    "scikit-learn>=1.4",
+    "joblib>=1.3",
+    "requests>=2.31"
+]
