@@ -144,13 +144,28 @@ def feature_row_from_observation(observation: dict) -> dict:
 
 
 def append_csv(path: Path, row: dict) -> None:
+    # Vercel's deployed filesystem is read-only.
+    # Runtime CSV persistence is kept locally, but skipped
+    # on Vercel so live telemetry requests can complete.
+    if os.getenv("VERCEL") == "1":
+        return
+
     new_file = not path.exists()
-    with path.open("a", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=list(row.keys()))
+
+    with path.open(
+        "a",
+        newline="",
+        encoding="utf-8",
+    ) as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=list(row.keys()),
+        )
+
         if new_file:
             writer.writeheader()
-        writer.writerow(row)
 
+        writer.writerow(row)
 
 def latent_ground_truth(observation: dict) -> float:
     """Hidden simulator outcome used to create synthetic labels.
