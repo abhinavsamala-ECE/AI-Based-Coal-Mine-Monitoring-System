@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Command Dashboard{% endblock %}
+{% block page_subtitle %}AI-assisted mine safety intelligence · live prototype{% endblock %}
+
+{% block content %}
+<script>
+window.zoneObservations = {{ zone_observations | tojson }};
+window.zoneStatuses = {{ zone_status | tojson }};
+window.modelInfo = {{ model_info | tojson }};
+</script>
+
+<div class="world-dashboard">
+  <section class="kpi-grid reveal reveal-1">
+    <div class="kpi-card kpi-risk">
+      <div class="kpi-icon">◉</div>
+      <div><div class="kpi-label">AI MINE RISK</div><div class="kpi-value" id="kpi-risk-value">— <span>/ 100</span></div><div class="kpi-badge risk" id="kpi-risk-label">INITIALIZING</div></div>
+      <div class="kpi-trend" id="kpi-risk-trend">AI</div>
+    </div>
+    <div class="kpi-card"><div class="kpi-icon cyan">♙</div><div><div class="kpi-label">ACTIVE PERSONNEL</div><div class="kpi-value" id="kpi-personnel">—</div></div><div class="kpi-trend green">LIVE</div></div>
+    <div class="kpi-card"><div class="kpi-icon blue">▣</div><div><div class="kpi-label">ACTIVE EQUIPMENT</div><div class="kpi-value" id="kpi-equipment">—</div></div><div class="kpi-trend green">LIVE</div></div>
+    <div class="kpi-card"><div class="kpi-icon purple">◆</div><div><div class="kpi-label">SAFETY COMPLIANCE</div><div class="kpi-value" id="kpi-compliance">—%</div></div><div class="kpi-trend green">AI</div></div>
+    <div class="kpi-card"><div class="kpi-icon amber">!</div><div><div class="kpi-label">OPEN ALERTS</div><div class="kpi-value" id="kpi-alerts">{{ open_alerts|length }}</div></div><div class="kpi-trend" id="kpi-alert-trend">LIVE</div></div>
+  </section>
+
+  <section class="command-main reveal reveal-2">
+    <div class="panel mine-map-panel image-style-map">
+      <div class="panel-head map-head">
+        <div><div class="section-overline">MINE OVERVIEW</div><div class="panel-title">Holographic Open-Cast View</div><div class="panel-subtitle">Live AI risk visualization · hover or click zones, buildings and mine assets</div></div>
+        <div class="map-head-right"><div class="map-system-readout"><span class="live-dot"></span> AI STREAM</div><div class="map-legend"><span><i class="legend-low"></i>LOW</span><span><i class="legend-medium"></i>MEDIUM</span><span><i class="legend-high"></i>HIGH</span><span><i class="legend-critical"></i>CRITICAL</span></div></div>
+      </div>
+      {% include "components/mine_map.html" %}
+    </div>
+
+    <aside class="command-sidebar">
+      <div class="side-card ai-side-card">
+        <div class="side-card-head"><span>AI RISK ENGINE</span><span class="ai-live-badge"><i></i> LIVE</span></div>
+        <div class="ai-side-risk"><strong id="ai-side-risk">—</strong><span id="ai-side-confidence">confidence —</span></div>
+        <div class="ai-side-bar"><i id="ai-side-bar-fill"></i></div>
+        <div class="ai-side-meta"><span>MODEL</span><b id="ai-model-name">{{ model_info.model_type }}</b></div>
+        <div class="ai-side-meta"><span>TRAINING DATA</span><b>SYNTHETIC + LEARNING</b></div>
+        <button type="button" class="side-action" data-open="copilot">Ask Safety Copilot →</button>
+      </div>
+
+      <div class="side-card">
+        <div class="side-card-head"><span>RECENT AI ALERTS</span><a href="/alerts">VIEW ALL →</a></div>
+        <div class="alert-stack" id="live-alert-stack">
+          {% for alert in open_alerts[:5] %}
+          <a href="/alerts" class="mini-alert"><span class="mini-alert-icon sev-{{ alert.severity|lower }}">{{ '◆' if alert.severity in ['CRITICAL','HIGH'] else '!' }}</span><span><b>{{ alert.reason.split(';')[0] }}</b><small>{{ alert.zone }}</small></span><time>{{ alert.timestamp }}</time></a>
+          {% else %}<div class="empty-state">AI stream is standing by.</div>{% endfor %}
+        </div>
+      </div>
+
+      <div class="side-card">
+        <div class="side-card-head"><span>MINE ZONES</span><span class="collapse-mark">LIVE</span></div>
+        <div class="zone-legend-list" id="live-zone-list">
+          {% for zone, status in zone_status.items() %}
+          <button type="button" class="zone-legend-item" data-jump-zone="{{ zone }}"><i class="status-dot bg-{{ status|lower }}"></i><span>{{ zone }}</span><b>{{ status }}</b></button>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="side-card camera-side-card">
+        <div class="side-card-head"><span>LIVE CAMERA FEED</span><span class="camera-live"><i></i> LIVE</span></div>
+        <div class="camera-feed" id="camera-feed">
+          <div class="camera-scan"></div>
+          <div class="camera-corner tl"></div><div class="camera-corner tr"></div><div class="camera-corner bl"></div><div class="camera-corner br"></div>
+          <span class="camera-code">CAM-03 // PROCESSING AREA</span>
+          <span class="camera-overlay" id="camera-overlay">SIMULATED COMPUTER VISION STREAM</span>
+          <span class="camera-time" id="camera-time">00:00:00</span>
+        </div>
+        <div class="camera-event" id="camera-event">Waiting for next simulated camera event…</div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="ops-toolbar reveal reveal-3">
+    <div><div class="section-overline">OPERATIONS</div><div class="ops-title">AI decision tools</div><div class="ops-subtitle">Prediction · simulation · response · replay</div></div>
+    <div class="ops-buttons">
+      <button type="button" class="ops-btn" data-open="whatif">◈ WHAT-IF SIMULATOR</button>
+      <button type="button" class="ops-btn danger" data-open="evacuation">↗ EVACUATION</button>
+      <button type="button" class="ops-btn" data-open="replay">◉ INCIDENT REPLAY</button>
+      <button type="button" class="ops-btn" data-open="copilot">⌁ AI COPILOT</button>
+    </div>
+  </section>
+
+  <section class="intel-grid">
+    <div class="panel intel-panel">
+      <div class="panel-head compact-head"><div><div class="section-overline">MODEL EXPLANATION</div><div class="panel-title">Why the AI thinks this</div></div><span class="mono-pill" id="explain-zone">PROCESSING AREA</span></div>
+      <div class="explain-body"><div class="explain-main"><strong id="explain-risk">—</strong><span id="explain-confidence">Confidence —</span></div><div class="factor-list" id="factor-list"><div class="empty-state">Waiting for live telemetry…</div></div></div>
+    </div>
+    <div class="panel intel-panel">
+      <div class="panel-head compact-head"><div><div class="section-overline">WORKFORCE SAFETY</div><div class="panel-title">Worker digital twins</div></div><span class="mono-pill" id="worker-zone">LIVE</span></div>
+      <div class="worker-summary"><div><span>ACTIVE</span><strong id="worker-count">—</strong></div><div><span>AT RISK</span><strong id="worker-risk-count">—</strong></div><div><span>NEAREST</span><strong id="worker-nearest">— m</strong></div></div><div class="worker-strip" id="worker-strip"></div>
+    </div>
+    <div class="panel intel-panel">
+      <div class="panel-head compact-head"><div><div class="section-overline">EQUIPMENT</div><div class="panel-title">Asset health</div></div><span class="mono-pill" id="equipment-status">LIVE</span></div>
+      <div class="equipment-metric"><strong id="equipment-health">—%</strong><span>fleet health</span></div><div class="mini-progress"><i id="equipment-health-bar"></i></div><div class="equipment-grid"><span>OVERHEAT <b id="equipment-overheat">—</b></span><span>VIBRATION <b id="equipment-vibration">—</b></span><span>STATUS <b id="equipment-health-state">—</b></span></div>
+    </div>
+  </section>
+
+  <section class="bottom-grid reveal reveal-4">
+    <div class="metric-panel"><div class="metric-title">ZONE RISK DISTRIBUTION</div><div class="donut-row"><div class="risk-donut" id="risk-donut"><span id="risk-donut-value">—</span></div><div class="metric-list" id="risk-dist-list"><span><i class="critical-dot"></i>High / Critical <b>—</b></span><span><i class="medium-dot"></i>Medium <b>—</b></span><span><i class="low-dot"></i>Low <b>—</b></span></div></div></div>
+    <div class="metric-panel"><div class="metric-title">AI RISK TREND</div><div class="chart-bars" id="risk-history-bars"></div><div class="chart-axis"><span>LIVE</span><span>− 5 TICKS</span><b id="risk-trend-value">—</b></div></div>
+    <div class="metric-panel"><div class="metric-title">SAFETY INCIDENTS</div><div class="big-metric" id="incident-count">0 <span>SIMULATED</span></div><div class="mini-line"></div><div class="metric-green">AI MONITORED</div></div>
+    <div class="metric-panel"><div class="metric-title">ENVIRONMENTAL STATUS</div><div class="env-state"><span class="env-icon">◔</span><div><b id="environment-state">Good</b><span>Air Quality · Dust · Visibility</span></div></div><div class="progress"><i id="environment-bar" style="width:92%"></i></div><div class="progress-label" id="environment-value">92%</div></div>
+    <div class="metric-panel"><div class="metric-title">MODEL LEARNING</div><div class="big-metric" id="model-rows">— <span>ROWS</span></div><div class="weather-sub">Synthetic outcomes + retraining</div><div class="weather-grid"><span>Validation <b id="model-accuracy">—</b></span><span>Model <b id="model-type-short">RF</b></span><span>Last retrain <b id="model-retrain">—</b></span></div></div>
+  </section>
+</div>
+
+<div class="modal-overlay" id="whatif-modal" aria-hidden="true"><div class="ops-modal"><button class="modal-close" data-close="whatif">×</button><div class="eyebrow">SCENARIO LAB</div><h2>What-If Risk Simulator</h2><p>Change the mine conditions and ask the trained model what risk it predicts.</p><label>ZONE<select id="whatif-zone">{% for zone in zone_status.keys() %}<option>{{ zone }}</option>{% endfor %}</select></label><div class="scenario-grid"><label>Methane <output id="whatif-methane-out">1.0</output><input id="whatif-methane" type="range" min="0.1" max="3.5" step="0.1" value="1.0"></label><label>Temperature <output id="whatif-temperature-out">50°C</output><input id="whatif-temperature" type="range" min="20" max="95" step="1" value="50"></label><label>Dust <output id="whatif-dust-out">70</output><input id="whatif-dust" type="range" min="5" max="300" step="1" value="70"></label><label>Workers <output id="whatif-workers-out">25</output><input id="whatif-workers" type="range" min="0" max="90" step="1" value="25"></label><label>Hazard distance <output id="whatif-distance-out">45 m</output><input id="whatif-distance" type="range" min="2" max="100" step="1" value="45"></label><label>Equipment health <output id="whatif-health-out">90%</output><input id="whatif-health" type="range" min="30" max="100" step="1" value="90"></label></div><button class="primary-btn wide" id="run-whatif">RUN AI SIMULATION</button><div class="whatif-result" id="whatif-result">No scenario evaluated yet.</div></div></div>
+
+<div class="modal-overlay" id="evacuation-modal" aria-hidden="true"><div class="ops-modal"><button class="modal-close" data-close="evacuation">×</button><div class="eyebrow">EMERGENCY RESPONSE</div><h2>Evacuation Simulator</h2><p>Generate a route for the selected zone and stage simulated emergency services.</p><label>ZONE<select id="evacuation-zone">{% for zone in zone_status.keys() %}<option>{{ zone }}</option>{% endfor %}</select></label><button class="primary-btn wide danger-btn" id="run-evacuation">GENERATE EVACUATION PLAN</button><div id="evacuation-result" class="evacuation-result"></div></div></div>
+
+<div class="modal-overlay" id="replay-modal" aria-hidden="true"><div class="ops-modal replay-modal"><button class="modal-close" data-close="replay">×</button><div class="eyebrow">FORENSICS</div><h2>Incident Replay</h2><p id="replay-summary">Reconstructing the latest simulated incident.</p><div class="replay-timeline" id="replay-timeline"></div><button class="primary-btn wide" id="replay-play">PLAY REPLAY</button></div></div>
+
+<div class="modal-overlay" id="copilot-modal" aria-hidden="true"><div class="ops-modal copilot-modal"><button class="modal-close" data-close="copilot">×</button><div class="eyebrow">AI SAFETY COPILOT</div><h2>Ask the mine</h2><div class="copilot-context" id="copilot-context">Current focus: Processing Area</div><div class="copilot-chat" id="copilot-chat"><div class="copilot-msg bot">I can explain the current AI prediction, identify the strongest risk contributors, or help stage a response.</div></div><div class="copilot-input"><input id="copilot-question" placeholder="Why is this zone high risk?" autocomplete="off"><button id="copilot-send">SEND</button></div></div></div>
+{% endblock %}

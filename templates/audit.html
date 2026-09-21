@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Audit Trail{% endblock %}
+{% block page_title %}Audit Trail{% endblock %}
+{% block page_subtitle %}Traceability of analysis, alerts and response actions{% endblock %}
+
+{% block content %}
+<div class="page-stack">
+  <section class="page-command-header reveal reveal-1">
+    <div><div class="section-overline">TRACEABILITY // EVENT HISTORY</div><h1>Everything leaves a trail.</h1><p>The prototype keeps the decision chain visible: analysis → alert → acknowledgement → resolution.</p></div>
+    <span class="mono-pill">{{ audit_log|length }} EVENTS</span>
+  </section>
+
+  <section class="panel reveal reveal-2 audit-panel">
+    <div class="panel-head"><div><div class="section-overline">SYSTEM AUDIT</div><div class="panel-title">Event Timeline</div><div class="panel-subtitle">Newest event first · prototype state is held in memory.</div></div><span class="governance-badge"><span class="status-dot bg-low"></span> TRACEABLE</span></div>
+
+    {% if not audit_log %}
+      <div class="empty-state large"><div class="empty-icon">≡</div><div class="empty-title">NO EVENTS YET</div><div class="empty-copy">Run an analysis or update an alert to create the first event.</div></div>
+    {% endif %}
+
+    <div class="audit-timeline">
+      {% for entry in audit_log %}
+      <button class="audit-event reveal reveal-{{ [3,4,5,6,7,8,9][loop.index0 if loop.index0 < 7 else 6] }}" type="button" aria-expanded="false">
+        <div class="audit-time">{{ entry.timestamp }}</div>
+        <div class="audit-spine"><span></span><i></i></div>
+        <div class="audit-event-main"><div class="audit-event-top"><b>{{ entry.event }}</b><span>EXPAND</span></div><div class="audit-event-preview">{{ entry.detail }}</div><div class="audit-event-detail">EVENT DETAIL // {{ entry.detail }}</div></div>
+      </button>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

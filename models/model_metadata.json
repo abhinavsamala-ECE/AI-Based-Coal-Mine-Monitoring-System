@@ -1,0 +1,92 @@
+{
+  "model_type": "RandomForestClassifier",
+  "features": [
+    "methane",
+    "co",
+    "temperature",
+    "humidity",
+    "dust",
+    "vibration",
+    "noise",
+    "worker_count",
+    "worker_hazard_distance",
+    "ppe_violations",
+    "equipment_temperature",
+    "equipment_overheating",
+    "equipment_health",
+    "slope_stability",
+    "wind_speed",
+    "rainfall",
+    "visibility"
+  ],
+  "classes": [
+    "CRITICAL",
+    "HIGH",
+    "LOW",
+    "MEDIUM"
+  ],
+  "rows": 9800,
+  "validation_accuracy": 0.8567,
+  "validation_balanced_accuracy": 0.8683,
+  "trained_at": "2026-09-17T13:15:15.690594+00:00",
+  "synthetic_data": true,
+  "note": "Prototype model trained on synthetic observations; not a certified mine-safety model.",
+  "class_report": {
+    "CRITICAL": {
+      "precision": 0.9947643979057592,
+      "recall": 0.9661016949152542,
+      "f1-score": 0.9802235597592434,
+      "support": 590.0
+    },
+    "HIGH": {
+      "precision": 0.762962962962963,
+      "recall": 0.8917748917748918,
+      "f1-score": 0.8223552894211577,
+      "support": 231.0
+    },
+    "LOW": {
+      "precision": 0.7891654465592972,
+      "recall": 0.8764227642276423,
+      "f1-score": 0.8305084745762712,
+      "support": 615.0
+    },
+    "MEDIUM": {
+      "precision": 0.8444444444444444,
+      "recall": 0.7388888888888889,
+      "f1-score": 0.7881481481481482,
+      "support": 720.0
+    },
+    "accuracy": 0.8566790352504638,
+    "macro avg": {
+      "precision": 0.847834312968116,
+      "recall": 0.8682970599516693,
+      "f1-score": 0.8553088679762051,
+      "support": 2156.0
+    },
+    "weighted avg": {
+      "precision": 0.8610817202424909,
+      "recall": 0.8566790352504638,
+      "f1-score": 0.8564588824885504,
+      "support": 2156.0
+    }
+  },
+  "feature_importance": {
+    "methane": 0.14827,
+    "dust": 0.13709,
+    "vibration": 0.13086,
+    "temperature": 0.12488,
+    "slope_stability": 0.09919,
+    "equipment_health": 0.08028,
+    "worker_count": 0.05748,
+    "equipment_temperature": 0.05283,
+    "worker_hazard_distance": 0.04083,
+    "noise": 0.02658,
+    "rainfall": 0.02075,
+    "ppe_violations": 0.01932,
+    "co": 0.01815,
+    "visibility": 0.01727,
+    "humidity": 0.01084,
+    "wind_speed": 0.01027,
+    "equipment_overheating": 0.00512
+  }
+}

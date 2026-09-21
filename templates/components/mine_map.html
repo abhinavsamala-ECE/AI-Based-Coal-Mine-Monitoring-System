@@ -1,0 +1,22 @@
+<div class="mine-map-shell target-holo-shell" id="mine-map">
+  <div class="map-atmosphere"></div>
+  <div class="map-hud map-hud-top"><span>SECTOR // MINE-01</span><span>3D HOLOGRAPHIC MINE VIEW · 05 ZONES</span></div>
+  <div class="mine-3d-viewport" id="mine-3d-viewport" aria-label="Interactive 3D holographic coal mine map">
+    <div class="mine-3d-loading" id="mine-3d-loading"><span class="loading-orbit"></span><span>INITIALIZING 3D MINE VIEW</span></div>
+    <canvas id="mine-3d-canvas"></canvas>
+    <div id="mine-zone-labels" class="mine-zone-labels"></div>
+    <div class="mine-3d-title">3D // HOLOGRAPHIC OPEN-CAST TERRAIN</div>
+    <div class="map-controls"><button type="button" id="mine-reset-view">3D</button><button type="button" id="mine-zoom-in">+</button><button type="button" id="mine-zoom-out">−</button></div>
+  </div>
+  <div class="map-hud map-hud-bottom-left"><span>DRAG // ORBIT</span><span>SCROLL // ZOOM</span></div>
+  <div class="map-hud map-hud-bottom-right"><span>LIVE PROTOTYPE</span><span id="map-interaction-status">HOVER A ZONE OR STRUCTURE</span></div>
+
+  <div id="zone-popup" class="zone-popup hidden" role="dialog" aria-label="Zone intelligence">
+    <div class="popup-accent"></div><button id="close-zone-popup" class="zone-popup-close" type="button" aria-label="Close zone intelligence">×</button>
+    <div class="eyebrow">ZONE INTELLIGENCE</div><div class="zone-popup-code">ZONE // <span id="popup-zone-code">Z-01</span></div><div id="popup-zone-name" class="zone-popup-title">North Pit</div>
+    <div class="zone-popup-status-row"><span id="popup-status-dot" class="status-dot bg-low"></span><span id="popup-zone-status">LOW</span><span id="popup-zone-status-note">WITHIN DEMO RANGE</span></div>
+    <div class="popup-grid"><div><span>METHANE</span><strong id="popup-methane">—</strong></div><div><span>DUST</span><strong id="popup-dust">—</strong></div><div><span>TEMPERATURE</span><strong id="popup-temperature">—</strong></div><div><span>VIBRATION</span><strong id="popup-vibration">—</strong></div></div>
+    <div class="popup-secondary-grid"><div><span>VENTILATION</span><strong id="popup-ventilation">GOOD</strong></div><div><span>LAST ANALYSIS</span><strong id="popup-time">DEMO STATE</strong></div></div>
+    <div class="popup-footer-note">Status is derived from the current ML risk model and live prototype telemetry.</div><a id="popup-analyze-link" href="/analyze" class="primary-btn popup-action">Run analysis <span>→</span></a>
+  </div>
+</div>

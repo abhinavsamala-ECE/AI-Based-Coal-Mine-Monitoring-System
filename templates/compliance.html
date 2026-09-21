@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Compliance{% endblock %}
+{% block page_title %}Compliance{% endblock %}
+{% block page_subtitle %}Prototype governance console · linked to decision outcomes{% endblock %}
+
+{% block content %}
+<div class="page-stack">
+  <section class="page-command-header reveal reveal-1">
+    <div><div class="section-overline">GOVERNANCE // DEMO CHECKS</div><h1>Compliance visibility.</h1><p>A lightweight governance layer showing how risk outcomes can feed inspection and follow-up work.</p></div>
+    <div class="governance-badge"><span class="status-dot bg-low"></span> DEMO GOVERNANCE</div>
+  </section>
+
+  <div class="compliance-overview reveal reveal-2">
+    <div class="compliance-overview-main"><div class="section-overline">COMPLIANCE OVERVIEW</div><strong>{{ summary.Compliant }}/{{ checks|length }}</strong><span>checks currently compliant</span></div>
+    <div class="compliance-overview-stat ok"><span>COMPLIANT</span><b>{{ summary.Compliant }}</b></div>
+    <div class="compliance-overview-stat warn"><span>WARNING</span><b>{{ summary.Warning }}</b></div>
+    <div class="compliance-overview-stat pending"><span>PENDING</span><b>{{ summary.Pending }}</b></div>
+  </div>
+
+  <div class="notice reveal reveal-3"><span class="notice-icon">!</span><div><b>DEMO DATA NOTICE</b><p>These checks are fictional prototype data. They are not official DGMS requirements. Running an analysis may update selected statuses.</p></div></div>
+
+  <section class="panel reveal reveal-4">
+    <div class="panel-head"><div><div class="section-overline">CHECK REGISTER</div><div class="panel-title">Governance Checks</div><div class="panel-subtitle">Evidence-oriented status, last checked time and next action.</div></div><span class="mono-pill">IN MEMORY</span></div>
+    <div class="compliance-table-head"><span>CHECK</span><span>STATUS</span><span>LAST CHECKED</span><span>ACTION</span></div>
+    <div class="compliance-list">
+      {% for check in checks %}
+      <div class="compliance-row">
+        <div class="compliance-name"><span class="check-index">0{{ loop.index }}</span><div><b>{{ check.check }}</b><small>PROTOTYPE CHECK</small></div></div>
+        <div><span class="badge" data-severity="{% if check.status == 'Compliant' %}LOW{% elif check.status == 'Warning' %}MEDIUM{% else %}HIGH{% endif %}">{{ check.status }}</span></div>
+        <div class="font-mono compliance-time">{{ check.last_checked }}</div>
+        <div class="compliance-action">{{ check.action }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="future-governance panel reveal reveal-5">
+    <div><div class="section-overline">EXTENSION PATH</div><div class="panel-title">Future governance modules</div><div class="panel-subtitle">Planned capabilities, shown here without pretending they are live.</div></div>
+    <div class="planned-module-row"><span>Evidence management</span><b>PLANNED</b><span>Timestamp · location · source · rule · model confidence</span></div>
+    <div class="planned-module-row"><span>Action tracking</span><b>PLANNED</b><span>Assignment · inspection · finding · corrective action · closure</span></div>
+  </section>
+</div>
+{% endblock %}

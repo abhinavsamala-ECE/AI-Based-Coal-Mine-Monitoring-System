@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Alerts{% endblock %}
+{% block page_title %}Alerts{% endblock %}
+{% block page_subtitle %}Incident management · acknowledgement · resolution{% endblock %}
+
+{% block content %}
+<div class="page-stack">
+  <section class="page-command-header reveal reveal-1">
+    <div><div class="section-overline">INCIDENT MANAGEMENT // RESPONSE QUEUE</div><h1>Alerts & response state.</h1><p>Keep every generated incident traceable from first detection through resolution.</p></div>
+    <a href="/audit" class="secondary-btn">Open audit trail <span>→</span></a>
+  </section>
+
+  <section class="mini-kpi-grid reveal reveal-2">
+    <div class="mini-stat"><span>OPEN</span><strong>{{ open_count }}</strong><small>Needs response</small></div>
+    <div class="mini-stat critical-mini"><span>CRITICAL</span><strong>{{ critical_count }}</strong><small>Highest severity</small></div>
+    <div class="mini-stat acknowledged-mini"><span>ACKNOWLEDGED</span><strong>{{ acknowledged_count }}</strong><small>In review</small></div>
+    <div class="mini-stat resolved-mini"><span>RESOLVED</span><strong>{{ resolved_count }}</strong><small>History retained</small></div>
+  </section>
+
+  <section class="panel reveal reveal-3">
+    <div class="panel-head">
+      <div><div class="section-overline">ALERT REGISTER</div><div class="panel-title">Generated Incidents</div><div class="panel-subtitle">Select an incident to expand its explanation and actions.</div></div>
+      <span class="mono-pill">{{ alerts|length }} TOTAL</span>
+    </div>
+
+    <div class="alert-page-list" id="alerts-list">
+      {% if not alerts %}
+      <div class="empty-state large"><div class="empty-icon success">✓</div><div class="empty-title">NO ALERTS RECORDED</div><div class="empty-copy">Run an analysis to create a prototype incident.</div></div>
+      {% endif %}
+
+      {% for alert in alerts %}
+      <article class="alert-card {% if alert.status == 'Resolved' %}alert-resolved{% endif %}" data-alert-id="{{ alert.id }}" data-severity="{{ alert.severity }}" data-status="{{ alert.status }}">
+        <button class="alert-summary" type="button" aria-expanded="false">
+          <div class="alert-severity-rail"></div>
+          <div class="alert-summary-main">
+            <div class="alert-summary-top">
+              <span class="font-mono alert-id">{{ alert.id }}</span>
+              <span class="alert-zone">{{ alert.zone }}</span>
+              <span class="badge" data-severity="{{ alert.severity }}">{{ alert.severity }}</span>
+            </div>
+            <div class="alert-summary-meta">{{ alert.timestamp }} · AI CONFIDENCE {{ alert.ai_confidence|default('—') }}%</div>
+          </div>
+          <div class="alert-summary-right">
+            <span class="badge alert-status-badge" data-status="{{ alert.status }}">{{ alert.status }}</span>
+            <span class="expand-mark">+</span>
+          </div>
+        </button>
+
+        <div class="alert-details">
+          <div class="alert-state-track">
+            <span class="state-node {% if alert.status in ['Acknowledged','Resolved'] or alert.status == 'Open' %}state-live{% endif %}">OPEN</span><i></i>
+            <span class="state-node {% if alert.status in ['Acknowledged','Resolved'] %}state-live{% endif %}">ACKNOWLEDGED</span><i></i>
+            <span class="state-node {% if alert.status == 'Resolved' %}state-live{% endif %}">RESOLVED</span>
+          </div>
+          <div class="alert-detail-grid">
+            <div><div class="section-kicker">WHY IT FIRED</div><p>{{ alert.reason }}</p></div>
+            <div><div class="section-kicker">RECOMMENDED ACTION</div><p>{{ alert.action }}</p></div>
+          </div>
+          <div class="alert-actions">
+            {% if alert.status != 'Acknowledged' and alert.status != 'Resolved' %}<button class="secondary-btn alert-action-btn" data-alert-id="{{ alert.id }}" data-status="Acknowledged">Acknowledge <span>→</span></button>{% endif %}
+            {% if alert.status != 'Resolved' %}<button class="primary-btn alert-action-btn" data-alert-id="{{ alert.id }}" data-status="Resolved">Mark Resolved <span>✓</span></button>{% endif %}
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/alerts.js') }}"></script>
+{% endblock %}

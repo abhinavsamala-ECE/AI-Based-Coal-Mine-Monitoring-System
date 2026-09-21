@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#060A0F">
+  <title>{% block title %}Coal Mine Monitor{% endblock %} · SIH26024</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            base: '#060A0F',
+            panel: '#0B1219',
+            raised: '#101922',
+            line: '#1C2A35',
+            ink: '#EEF4F7',
+            faint: '#7D8C98',
+            amber: '#F5A623',
+            low: '#42D67A',
+            medium: '#D7B43A',
+            high: '#F0802C',
+            critical: '#FF4D57'
+          },
+          fontFamily: {
+            sans: ['"IBM Plex Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body class="bg-base text-ink font-sans min-h-screen">
+  <div class="ambient-grid"></div>
+  <div class="ambient-vignette"></div>
+
+  <header class="global-topbar">
+    <div class="global-brand">
+      <button id="mobile-nav-toggle" class="mobile-nav-toggle" type="button" aria-label="Open navigation">☰</button>
+      <div class="global-brand-mark">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <div>
+        <div class="global-brand-name">Coal Mine Monitor</div>
+        <div class="global-brand-sub">Safer Mines. Smarter Decisions.</div>
+      </div>
+    </div>
+    <div class="global-top-actions">
+      <div class="topbar-meta">ML-RISK · LEARNING MODE</div>
+      <div class="system-pill"><span class="live-dot"></span> SYSTEM ONLINE</div>
+      <div class="clock" id="clock">--:--:--</div>
+      <div class="top-date">SEP 14, 2026</div>
+      <div class="top-notice">♧<span>3</span></div>
+      <div class="top-admin"><b>AD</b><span>Admin</span><i>⌄</i></div>
+    </div>
+  </header>
+
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-sector">
+        <span>SECTOR // MINE-01</span>
+        <span class="sector-state"><i></i> ONLINE</span>
+      </div>
+
+      <nav class="nav-list" aria-label="Primary navigation">
+        {% set nav_items = [
+          ('/', 'Dashboard', 'grid'),
+          ('/analyze', 'Analyze Risk', 'scan'),
+          ('/alerts', 'Alerts', 'alert'),
+          ('/compliance', 'Compliance', 'check'),
+          ('/audit', 'Audit Trail', 'timeline')
+        ] %}
+
+        {% for href, label, icon in nav_items %}
+          <a href="{{ href }}" class="nav-link {% if request.path == href %}nav-active{% endif %}">
+            <span class="nav-icon" aria-hidden="true">
+              {% if icon == 'grid' %}⌘{% elif icon == 'scan' %}⌁{% elif icon == 'alert' %}!{% elif icon == 'check' %}✓{% else %}≡{% endif %}
+            </span>
+            <span>{{ label }}</span>
+            {% if request.path == href %}<span class="nav-current">CURRENT</span>{% endif %}
+          </a>
+        {% endfor %}
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="footer-title">SYSTEM STATUS</div>
+        <div class="footer-status"><span class="status-dot bg-low"></span> SYSTEM ONLINE</div>
+        <div>ML RISK MODEL <b>v1.0</b></div>
+        <div>17 FEATURES · LIVE INFERENCE</div>
+        <div>MODE <b>PROTOTYPE</b></div>
+      </div>
+    </aside>
+
+    <div class="main-area">
+
+      <main class="content-wrap">
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+
+  <div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

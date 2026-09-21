@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}AI Risk Analysis{% endblock %}
+{% block page_title %}AI Risk Analysis{% endblock %}
+{% block page_subtitle %}Operator console · trained machine-learning risk assessment{% endblock %}
+
+{% block content %}
+<div class="analysis-page">
+  <section class="analysis-command-bar reveal reveal-1">
+    <div>
+      <div class="section-overline">AI ANALYSIS CONSOLE // ML-RISK-01</div>
+      <h1 class="page-hero-title">Ask the trained model about a mine observation.</h1>
+      <p class="page-hero-copy">Provide the latest environmental, equipment and workforce conditions. The model returns risk class, probability, confidence and the strongest contributing signals.</p>
+    </div>
+    <div class="analysis-status-box">
+      <span class="live-dot"></span>
+      <div><b>ML MODEL ACTIVE</b><small>{{ model_info.model_type }} · {{ '{:.1f}'.format(model_info.validation_balanced_accuracy * 100) }}% balanced validation accuracy</small></div>
+    </div>
+  </section>
+
+  <div class="analysis-grid reveal reveal-2">
+    <section class="panel analysis-input-panel">
+      <div class="panel-head">
+        <div><div class="section-overline">OBSERVATION INPUT</div><div class="panel-title">Operator Console</div><div class="panel-subtitle">17 model features plus ventilation context.</div></div>
+        <span class="mono-pill">17 FEATURES</span>
+      </div>
+      <form id="analyze-form" class="form-body">
+        <div class="zone-select-block"><label class="field-label" for="zone">TARGET ZONE</label><select id="zone" name="zone" class="input-control input-control-strong">{% for zone in zones %}<option value="{{ zone }}">{{ zone }}</option>{% endfor %}</select></div>
+
+        <div class="field-section"><div class="field-section-head"><span>01</span><div><b>ENVIRONMENT</b><small>Atmospheric, air-quality and weather observations</small></div></div><div class="form-grid">
+          <div class="field-wrap"><label class="field-label" for="methane">Methane (%)</label><input id="methane" type="number" min="0" step="0.01" name="methane" value="0.8" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="co">CO (ppm)</label><input id="co" type="number" min="0" step="0.1" name="co" value="12" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="temperature">Temperature (°C)</label><input id="temperature" type="number" min="0" step="1" name="temperature" value="38" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="humidity">Humidity (%)</label><input id="humidity" type="number" min="0" max="100" step="1" name="humidity" value="58" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="dust">Dust</label><input id="dust" type="number" min="0" step="1" name="dust" value="45" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="noise">Noise (dB)</label><input id="noise" type="number" min="0" step="1" name="noise" value="65" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="wind_speed">Wind speed (km/h)</label><input id="wind_speed" type="number" min="0" step="0.1" name="wind_speed" value="12" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="rainfall">Rainfall (mm)</label><input id="rainfall" type="number" min="0" step="0.1" name="rainfall" value="2" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="visibility">Visibility (km)</label><input id="visibility" type="number" min="0" step="0.1" name="visibility" value="10" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="ventilation_status">Ventilation</label><select id="ventilation_status" name="ventilation_status" class="input-control"><option value="good">Good</option><option value="moderate">Moderate</option><option value="poor">Poor</option></select></div>
+        </div></div>
+
+        <div class="field-section"><div class="field-section-head"><span>02</span><div><b>WORKFORCE & SAFETY</b><small>Personnel proximity and PPE observations</small></div></div><div class="form-grid">
+          <div class="field-wrap"><label class="field-label" for="worker_count">Worker count</label><input id="worker_count" type="number" min="0" step="1" name="worker_count" value="24" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="worker_hazard_distance">Nearest hazard distance (m)</label><input id="worker_hazard_distance" type="number" min="0" step="0.1" name="worker_hazard_distance" value="45" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="ppe_violations">PPE violations</label><input id="ppe_violations" type="number" min="0" step="1" name="ppe_violations" value="0" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="slope_stability">Slope stability (%)</label><input id="slope_stability" type="number" min="0" max="100" step="1" name="slope_stability" value="92" class="input-control"></div>
+        </div></div>
+
+        <div class="field-section"><div class="field-section-head"><span>03</span><div><b>EQUIPMENT</b><small>Mechanical health and overheating indicators</small></div></div><div class="form-grid">
+          <div class="field-wrap"><label class="field-label" for="vibration">Vibration (mm/s)</label><input id="vibration" type="number" min="0" step="0.1" name="vibration" value="2.4" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="equipment_temperature">Equipment temperature (°C)</label><input id="equipment_temperature" type="number" min="0" step="1" name="equipment_temperature" value="48" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="equipment_health">Equipment health (%)</label><input id="equipment_health" type="number" min="0" max="100" step="1" name="equipment_health" value="94" class="input-control"></div>
+          <div class="field-wrap"><label class="field-label" for="equipment_overheating">Equipment overheating</label><select id="equipment_overheating" name="equipment_overheating" class="input-control"><option value="0">No</option><option value="1">Yes</option></select></div>
+        </div></div>
+
+        <div class="prototype-note"><span>AI</span><div><b>SYNTHETIC PROTOTYPE MODEL</b><p>The current model is trained on synthetic demonstration data. Its predictions are not certified safety limits and require real mine data, domain validation and human review before operational use.</p></div></div>
+        <button id="analyze-submit" type="submit" class="primary-btn analyze-btn"><span class="btn-icon">◈</span><span>Run AI Risk Analysis</span><span class="btn-arrow">→</span></button>
+      </form>
+    </section>
+
+    <section class="panel result-panel-wrap">
+      <div class="panel-head"><div><div class="section-overline">DECISION OUTPUT</div><div class="panel-title">AI Risk Assessment</div><div class="panel-subtitle">Probability distribution + learned feature importance explanation.</div></div><span class="mono-pill">ML EXPLANATION</span></div>
+      <div id="result-placeholder" class="analysis-placeholder"><div class="scan-orbit"><span></span><i></i></div><div class="placeholder-title">AWAITING OBSERVATION</div><div class="placeholder-copy">Submit an observation to query the trained model.</div><div class="placeholder-pipeline"><span>INPUT</span><i>→</i><span>ML MODEL</span><i>→</i><span>RISK</span></div></div>
+      <div id="analysis-progress" class="analysis-progress hidden"><div class="progress-stage"><span class="stage-icon">01</span><span id="progress-stage-text">INGESTING FEATURES</span></div><div class="progress-stage"><span class="stage-icon">02</span><span>RUNNING MODEL</span></div><div class="progress-stage"><span class="stage-icon">03</span><span>EXPLAINING PREDICTION</span></div><div class="progress-stage"><span class="stage-icon">04</span><span>ASSESSMENT READY</span></div></div>
+
+      <div id="result-panel" class="hidden result-content">
+        <div class="result-hero" id="result-hero"><div class="result-hero-top"><div><div class="section-overline">FINAL AI RISK</div><div id="result-badge" class="result-risk">LOW</div><div id="result-summary" class="result-summary">No prediction yet.</div></div><div class="result-count-block"><span>MODEL CONFIDENCE</span><strong id="result-rule-count">0%</strong></div></div><div class="score-block"><div class="score-line"><span>AI RISK SCORE</span><strong id="result-score-label">0 / 100</strong></div><div class="score-track"><div id="result-score-bar" class="score-fill" style="width:0%"></div></div></div></div>
+        <div class="result-section"><div class="result-section-head"><span>01</span><div><b>PROBABILITY DISTRIBUTION</b><small>How the model distributes belief across risk classes.</small></div></div><div id="result-rules" class="rule-list"></div></div>
+        <div class="result-section"><div class="result-section-head"><span>02</span><div><b>STRONGEST LEARNED SIGNALS</b><small>Features with the highest learned contribution for this observation.</small></div></div><ul id="result-actions" class="action-list"></ul></div>
+        <div class="result-footer-meta"><span id="result-zone-meta">ZONE // —</span><span id="result-time-meta">TIME // —</span><span id="result-alert-meta">ALERT // NOT GENERATED</span></div>
+      </div>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}<script src="{{ url_for('static', filename='js/analyze.js') }}"></script>{% endblock %}
