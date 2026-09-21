@@ -369,6 +369,6 @@ a { color: inherit; text-decoration: none; }
 /* Global display scaling */
 @media (min-width: 1201px) {
     body {
-        zoom: 1.22;
+        zoom: 1.2;
     }
 }

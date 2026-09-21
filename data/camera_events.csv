@@ -15429,3 +15429,317 @@
 22:28:26,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,89,True,False
 22:28:27,CAM-06,Processing Area,PPE violation,HIGH,89,False,False
 22:28:28,CAM-07,Storage Area,PPE violation,HIGH,93,False,False
+04:09:45,CAM-03,North Pit,Routine movement,INFO,95,True,False
+04:09:52,CAM-04,South Pit,Routine movement,INFO,88,True,False
+04:10:05,CAM-05,Conveyor Zone,Routine movement,INFO,92,True,False
+04:10:14,CAM-06,Processing Area,PPE violation,MEDIUM,94,False,False
+04:10:29,CAM-07,Storage Area,Routine movement,INFO,95,True,False
+04:10:36,CAM-03,North Pit,Routine movement,INFO,92,True,False
+04:10:40,CAM-04,South Pit,Routine movement,INFO,97,True,False
+04:10:51,CAM-05,Conveyor Zone,PPE violation,MEDIUM,91,False,False
+04:10:58,CAM-06,Processing Area,Hazardous activity pattern,HIGH,92,True,False
+04:11:06,CAM-07,Storage Area,PPE violation,MEDIUM,91,False,False
+04:11:09,CAM-03,North Pit,PPE violation,MEDIUM,95,False,False
+04:11:12,CAM-04,South Pit,Routine movement,INFO,92,True,False
+04:11:19,CAM-05,Conveyor Zone,PPE violation,MEDIUM,96,False,False
+04:11:22,CAM-06,Processing Area,Hazardous activity pattern,HIGH,95,True,False
+04:11:26,CAM-07,Storage Area,PPE violation,MEDIUM,90,False,False
+04:11:35,CAM-03,North Pit,PPE violation,MEDIUM,97,False,False
+04:11:45,CAM-04,South Pit,Routine movement,INFO,90,True,False
+04:11:55,CAM-05,Conveyor Zone,PPE violation,MEDIUM,89,False,False
+04:12:01,CAM-06,Processing Area,PPE violation,MEDIUM,90,False,False
+04:12:10,CAM-07,Storage Area,PPE violation,MEDIUM,89,False,False
+04:12:11,CAM-03,North Pit,PPE violation,MEDIUM,88,False,False
+04:12:12,CAM-04,South Pit,PPE violation,MEDIUM,89,False,False
+04:12:13,CAM-05,Conveyor Zone,PPE violation,MEDIUM,88,False,False
+04:12:14,CAM-06,Processing Area,PPE violation,MEDIUM,92,False,False
+04:12:14,CAM-07,Storage Area,PPE violation,MEDIUM,90,False,False
+04:12:15,CAM-03,North Pit,PPE violation,MEDIUM,88,False,False
+04:12:18,CAM-04,South Pit,PPE violation,MEDIUM,90,False,False
+04:12:22,CAM-05,Conveyor Zone,PPE violation,MEDIUM,94,False,False
+04:12:23,CAM-06,Processing Area,PPE violation,MEDIUM,88,False,False
+04:12:24,CAM-07,Storage Area,PPE violation,MEDIUM,95,False,False
+04:12:25,CAM-03,North Pit,PPE violation,MEDIUM,95,False,False
+04:12:26,CAM-04,South Pit,Hazardous activity pattern,HIGH,95,True,False
+04:12:26,CAM-05,Conveyor Zone,PPE violation,MEDIUM,96,False,False
+04:12:27,CAM-06,Processing Area,Hazardous activity pattern,HIGH,90,True,False
+04:12:28,CAM-07,Storage Area,PPE violation,MEDIUM,92,False,False
+04:12:28,CAM-03,North Pit,PPE violation,MEDIUM,97,False,False
+04:12:29,CAM-04,South Pit,Hazardous activity pattern,HIGH,89,True,False
+04:12:30,CAM-05,Conveyor Zone,PPE violation,MEDIUM,89,False,False
+04:12:30,CAM-06,Processing Area,Hazardous activity pattern,HIGH,97,True,False
+04:12:31,CAM-07,Storage Area,PPE violation,MEDIUM,94,False,False
+04:12:32,CAM-03,North Pit,PPE violation,MEDIUM,88,False,False
+04:12:32,CAM-04,South Pit,PPE violation,MEDIUM,96,False,False
+04:12:33,CAM-05,Conveyor Zone,PPE violation,MEDIUM,93,False,False
+04:12:34,CAM-06,Processing Area,Hazardous activity pattern,HIGH,93,True,False
+04:12:34,CAM-07,Storage Area,Routine movement,INFO,91,True,False
+04:12:35,CAM-03,North Pit,PPE violation,MEDIUM,93,False,False
+04:12:35,CAM-04,South Pit,PPE violation,MEDIUM,88,False,False
+04:12:35,CAM-05,Conveyor Zone,PPE violation,MEDIUM,91,False,False
+04:12:36,CAM-06,Processing Area,Hazardous activity pattern,HIGH,91,True,False
+04:12:36,CAM-07,Storage Area,Routine movement,INFO,93,True,False
+04:12:37,CAM-03,North Pit,PPE violation,MEDIUM,93,False,False
+04:12:37,CAM-04,South Pit,PPE violation,MEDIUM,90,False,False
+04:12:38,CAM-05,Conveyor Zone,PPE violation,MEDIUM,88,False,False
+04:12:38,CAM-06,Processing Area,Hazardous activity pattern,HIGH,97,True,False
+04:12:38,CAM-07,Storage Area,Routine movement,INFO,89,True,False
+04:12:39,CAM-03,North Pit,PPE violation,MEDIUM,96,False,False
+04:12:39,CAM-04,South Pit,PPE violation,MEDIUM,90,False,False
+04:12:40,CAM-05,Conveyor Zone,Routine movement,INFO,95,True,False
+04:12:40,CAM-06,Processing Area,Hazardous activity pattern,HIGH,92,True,False
+04:12:40,CAM-07,Storage Area,Routine movement,INFO,92,True,False
+04:12:41,CAM-03,North Pit,PPE violation,MEDIUM,93,False,False
+04:12:41,CAM-04,South Pit,PPE violation,MEDIUM,93,False,False
+04:12:42,CAM-05,Conveyor Zone,Routine movement,INFO,91,True,False
+04:12:42,CAM-06,Processing Area,Hazardous activity pattern,HIGH,95,True,False
+04:12:44,CAM-07,Storage Area,Routine movement,INFO,89,True,False
+04:12:44,CAM-03,North Pit,PPE violation,MEDIUM,97,False,False
+04:12:45,CAM-04,South Pit,PPE violation,MEDIUM,92,False,False
+04:12:45,CAM-05,Conveyor Zone,Routine movement,INFO,96,True,False
+04:12:45,CAM-06,Processing Area,PPE violation,MEDIUM,88,False,False
+04:12:46,CAM-07,Storage Area,Routine movement,INFO,97,True,False
+04:12:46,CAM-03,North Pit,PPE violation,MEDIUM,92,False,False
+04:12:47,CAM-04,South Pit,PPE violation,MEDIUM,94,False,False
+04:12:47,CAM-05,Conveyor Zone,Routine movement,INFO,90,True,False
+04:12:47,CAM-06,Processing Area,PPE violation,MEDIUM,90,False,False
+04:12:48,CAM-07,Storage Area,Routine movement,INFO,93,True,False
+04:12:48,CAM-03,North Pit,PPE violation,MEDIUM,96,False,False
+04:12:49,CAM-04,South Pit,PPE violation,MEDIUM,90,False,False
+04:12:49,CAM-05,Conveyor Zone,Routine movement,INFO,90,True,False
+04:12:50,CAM-06,Processing Area,PPE violation,HIGH,97,False,False
+04:12:50,CAM-07,Storage Area,Routine movement,INFO,90,True,False
+04:12:51,CAM-03,North Pit,PPE violation,HIGH,93,False,False
+04:12:51,CAM-04,South Pit,PPE violation,MEDIUM,94,False,False
+04:12:51,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,94,True,False
+04:12:52,CAM-06,Processing Area,PPE violation,HIGH,96,False,False
+04:12:52,CAM-07,Storage Area,Routine movement,INFO,89,True,False
+04:12:53,CAM-03,North Pit,PPE violation,HIGH,95,False,False
+04:12:53,CAM-04,South Pit,PPE violation,MEDIUM,89,False,False
+04:12:54,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,90,True,False
+04:12:54,CAM-06,Processing Area,PPE violation,HIGH,94,False,False
+04:12:55,CAM-07,Storage Area,Routine movement,INFO,93,True,False
+04:12:55,CAM-03,North Pit,PPE violation,HIGH,97,False,False
+04:12:56,CAM-04,South Pit,PPE violation,HIGH,89,False,False
+04:12:57,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,96,True,False
+04:12:57,CAM-06,Processing Area,PPE violation,HIGH,93,False,False
+04:12:58,CAM-07,Storage Area,Routine movement,INFO,95,True,False
+04:12:59,CAM-03,North Pit,PPE violation,HIGH,91,False,False
+04:13:00,CAM-04,South Pit,PPE violation,HIGH,97,False,False
+04:13:01,CAM-05,Conveyor Zone,PPE violation,MEDIUM,93,False,False
+04:13:01,CAM-06,Processing Area,PPE violation,HIGH,96,False,False
+04:13:02,CAM-07,Storage Area,Routine movement,INFO,90,True,False
+04:13:02,CAM-03,North Pit,PPE violation,MEDIUM,94,False,False
+04:13:04,CAM-04,South Pit,PPE violation,HIGH,97,False,False
+04:13:06,CAM-05,Conveyor Zone,PPE violation,MEDIUM,96,False,False
+04:13:06,CAM-06,Processing Area,PPE violation,HIGH,91,False,False
+04:13:07,CAM-07,Storage Area,Routine movement,INFO,89,True,False
+04:13:07,CAM-03,North Pit,PPE violation,MEDIUM,95,False,False
+04:13:08,CAM-04,South Pit,PPE violation,HIGH,92,False,False
+04:13:08,CAM-05,Conveyor Zone,PPE violation,MEDIUM,88,False,False
+04:13:08,CAM-06,Processing Area,PPE violation,HIGH,94,False,False
+04:13:09,CAM-07,Storage Area,Routine movement,INFO,96,True,False
+04:13:09,CAM-03,North Pit,PPE violation,MEDIUM,88,False,False
+04:13:10,CAM-04,South Pit,PPE violation,HIGH,88,False,False
+04:13:10,CAM-05,Conveyor Zone,PPE violation,MEDIUM,95,False,False
+04:13:10,CAM-06,Processing Area,PPE violation,HIGH,89,False,False
+04:13:11,CAM-07,Storage Area,Routine movement,INFO,94,True,False
+04:13:11,CAM-03,North Pit,PPE violation,HIGH,93,False,False
+04:13:12,CAM-04,South Pit,PPE violation,HIGH,88,False,False
+04:13:12,CAM-05,Conveyor Zone,PPE violation,MEDIUM,89,False,False
+04:13:12,CAM-06,Processing Area,PPE violation,HIGH,93,False,False
+04:13:13,CAM-07,Storage Area,Routine movement,INFO,88,True,False
+04:13:13,CAM-03,North Pit,PPE violation,HIGH,93,False,False
+04:13:13,CAM-04,South Pit,PPE violation,HIGH,89,False,False
+04:13:14,CAM-05,Conveyor Zone,PPE violation,MEDIUM,92,False,False
+04:13:14,CAM-06,Processing Area,PPE violation,HIGH,91,False,False
+04:13:15,CAM-07,Storage Area,Routine movement,INFO,97,True,False
+04:13:15,CAM-03,North Pit,PPE violation,HIGH,96,False,False
+04:13:15,CAM-04,South Pit,PPE violation,HIGH,88,False,False
+04:13:16,CAM-05,Conveyor Zone,PPE violation,MEDIUM,89,False,False
+04:13:16,CAM-06,Processing Area,PPE violation,HIGH,95,False,False
+04:13:17,CAM-07,Storage Area,PPE violation,MEDIUM,93,False,False
+04:13:17,CAM-03,North Pit,PPE violation,HIGH,94,False,False
+04:13:17,CAM-04,South Pit,PPE violation,HIGH,90,False,False
+04:13:18,CAM-05,Conveyor Zone,PPE violation,MEDIUM,92,False,False
+04:13:18,CAM-06,Processing Area,PPE violation,HIGH,92,False,False
+04:13:19,CAM-07,Storage Area,PPE violation,MEDIUM,93,False,False
+04:13:19,CAM-03,North Pit,PPE violation,HIGH,90,False,False
+04:13:19,CAM-04,South Pit,PPE violation,HIGH,95,False,False
+04:13:20,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,95,True,False
+04:13:21,CAM-06,Processing Area,PPE violation,HIGH,93,False,False
+04:13:21,CAM-07,Storage Area,PPE violation,MEDIUM,90,False,False
+04:13:22,CAM-03,North Pit,PPE violation,HIGH,93,False,False
+04:13:22,CAM-04,South Pit,PPE violation,HIGH,93,False,False
+04:13:23,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,97,True,False
+04:13:23,CAM-06,Processing Area,PPE violation,HIGH,94,False,False
+04:13:23,CAM-07,Storage Area,PPE violation,HIGH,90,False,False
+04:13:24,CAM-03,North Pit,PPE violation,HIGH,96,False,False
+04:13:24,CAM-04,South Pit,PPE violation,HIGH,90,False,False
+04:13:25,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,89,True,False
+04:13:25,CAM-06,Processing Area,PPE violation,HIGH,88,False,False
+04:13:26,CAM-07,Storage Area,PPE violation,HIGH,89,False,False
+04:13:26,CAM-03,North Pit,PPE violation,HIGH,94,False,False
+04:13:26,CAM-04,South Pit,PPE violation,HIGH,93,False,False
+04:13:27,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,95,True,False
+04:13:27,CAM-06,Processing Area,PPE violation,HIGH,97,False,False
+04:13:28,CAM-07,Storage Area,PPE violation,HIGH,97,False,False
+04:13:28,CAM-03,North Pit,PPE violation,HIGH,88,False,False
+04:13:29,CAM-04,South Pit,PPE violation,HIGH,94,False,False
+04:13:29,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,92,True,False
+04:13:30,CAM-06,Processing Area,PPE violation,HIGH,95,False,False
+04:13:30,CAM-07,Storage Area,PPE violation,HIGH,97,False,False
+04:13:31,CAM-03,North Pit,PPE violation,HIGH,95,False,False
+04:13:31,CAM-04,South Pit,PPE violation,HIGH,91,False,False
+04:13:31,CAM-05,Conveyor Zone,Hazardous activity pattern,HIGH,92,True,False
+04:13:32,CAM-06,Processing Area,PPE violation,HIGH,92,False,False
+04:13:33,CAM-07,Storage Area,PPE violation,HIGH,93,False,False
+04:13:33,CAM-03,North Pit,PPE violation,HIGH,92,False,False
+04:13:33,CAM-04,South Pit,PPE violation,HIGH,95,False,False
+04:13:34,CAM-05,Conveyor Zone,PPE violation,MEDIUM,97,False,False
+04:13:34,CAM-06,Processing Area,PPE violation,HIGH,90,False,True
+04:13:34,CAM-07,Storage Area,PPE violation,HIGH,88,False,False
+04:13:35,CAM-03,North Pit,PPE violation,HIGH,90,False,False
+04:13:35,CAM-04,South Pit,PPE violation,HIGH,97,False,False
+04:13:36,CAM-05,Conveyor Zone,PPE violation,MEDIUM,91,False,False
+04:13:36,CAM-06,Processing Area,PPE violation,HIGH,96,False,True
+04:13:37,CAM-07,Storage Area,PPE violation,MEDIUM,97,False,False
+04:13:38,CAM-03,North Pit,PPE violation,HIGH,94,False,False
+04:13:38,CAM-04,South Pit,PPE violation,HIGH,91,False,False
+04:13:46,CAM-03,North Pit,Routine movement,INFO,95,True,False
+04:13:46,CAM-04,South Pit,PPE violation,MEDIUM,91,False,False
+04:13:46,CAM-05,Conveyor Zone,Routine movement,INFO,89,True,False
+04:13:47,CAM-06,Processing Area,PPE violation,MEDIUM,93,False,False
+04:13:47,CAM-07,Storage Area,Routine movement,INFO,92,True,False
+04:13:47,CAM-03,North Pit,Routine movement,INFO,96,True,False
+04:13:48,CAM-04,South Pit,Routine movement,INFO,94,True,False
+04:13:48,CAM-05,Conveyor Zone,Routine movement,INFO,90,True,False
+04:13:49,CAM-06,Processing Area,PPE violation,MEDIUM,94,False,False
+04:13:49,CAM-07,Storage Area,Routine movement,INFO,97,True,False
+04:13:50,CAM-03,North Pit,Routine movement,INFO,91,True,False
+04:13:51,CAM-04,South Pit,Routine movement,INFO,95,True,False
+04:13:51,CAM-05,Conveyor Zone,Routine movement,INFO,97,True,False
+04:13:54,CAM-06,Processing Area,PPE violation,HIGH,90,False,False
+04:13:56,CAM-07,Storage Area,PPE violation,MEDIUM,94,False,False
+04:13:59,CAM-03,North Pit,PPE violation,MEDIUM,91,False,False
+04:14:02,CAM-04,South Pit,Hazardous activity pattern,HIGH,91,True,False
+04:14:04,CAM-05,Conveyor Zone,Routine movement,INFO,95,True,False
+04:14:07,CAM-06,Processing Area,PPE violation,HIGH,93,False,False
+04:14:10,CAM-07,Storage Area,PPE violation,MEDIUM,96,False,False
+04:14:11,CAM-03,North Pit,PPE violation,MEDIUM,88,False,False
+04:14:12,CAM-04,South Pit,Hazardous activity pattern,HIGH,93,True,False
+04:14:12,CAM-05,Conveyor Zone,Routine movement,INFO,95,True,False
+04:14:13,CAM-06,Processing Area,PPE violation,MEDIUM,93,False,False
+04:14:13,CAM-07,Storage Area,PPE violation,MEDIUM,89,False,False
+04:14:14,CAM-03,North Pit,PPE violation,MEDIUM,88,False,False
+04:14:15,CAM-04,South Pit,Hazardous activity pattern,HIGH,89,True,False
+04:14:15,CAM-05,Conveyor Zone,Routine movement,INFO,88,True,False
+04:14:16,CAM-06,Processing Area,PPE violation,MEDIUM,93,False,False
+04:14:17,CAM-07,Storage Area,Routine movement,INFO,88,True,False
+04:14:17,CAM-03,North Pit,PPE violation,MEDIUM,96,False,False
+04:14:18,CAM-04,South Pit,Hazardous activity pattern,HIGH,91,True,False
+04:14:19,CAM-05,Conveyor Zone,PPE violation,MEDIUM,93,False,False
+04:14:19,CAM-06,Processing Area,PPE violation,MEDIUM,95,False,False
+04:14:19,CAM-07,Storage Area,Routine movement,INFO,88,True,False
+04:14:20,CAM-03,North Pit,PPE violation,MEDIUM,93,False,False
+04:14:20,CAM-04,South Pit,Hazardous activity pattern,HIGH,89,True,False
+04:14:20,CAM-05,Conveyor Zone,PPE violation,MEDIUM,94,False,False
+04:14:21,CAM-06,Processing Area,PPE violation,MEDIUM,92,False,False
+04:14:21,CAM-07,Storage Area,Routine movement,INFO,89,True,False
+04:14:22,CAM-03,North Pit,PPE violation,MEDIUM,92,False,False
+04:14:22,CAM-04,South Pit,Hazardous activity pattern,HIGH,90,True,False
+04:14:23,CAM-05,Conveyor Zone,PPE violation,HIGH,92,False,False
+04:14:23,CAM-06,Processing Area,Hazardous activity pattern,CRITICAL,89,True,False
+04:14:23,CAM-07,Storage Area,PPE violation,MEDIUM,96,False,False
+04:14:24,CAM-03,North Pit,PPE violation,MEDIUM,90,False,False
+04:14:24,CAM-04,South Pit,PPE violation,MEDIUM,92,False,False
+04:14:24,CAM-05,Conveyor Zone,PPE violation,HIGH,96,False,False
+04:14:25,CAM-06,Processing Area,PPE violation,MEDIUM,96,False,False
+04:14:25,CAM-07,Storage Area,PPE violation,MEDIUM,92,False,False
+04:14:25,CAM-03,North Pit,PPE violation,MEDIUM,95,False,False
+04:14:26,CAM-04,South Pit,PPE violation,MEDIUM,93,False,False
+04:14:27,CAM-05,Conveyor Zone,PPE violation,HIGH,92,False,False
+04:14:27,CAM-06,Processing Area,Hazardous activity pattern,CRITICAL,96,True,False
+04:14:27,CAM-07,Storage Area,PPE violation,MEDIUM,95,False,False
+04:14:28,CAM-03,North Pit,PPE violation,MEDIUM,96,False,False
+04:14:28,CAM-04,South Pit,PPE violation,MEDIUM,90,False,False
+04:14:29,CAM-05,Conveyor Zone,PPE violation,MEDIUM,93,False,False
+04:14:29,CAM-06,Processing Area,Hazardous activity pattern,CRITICAL,94,True,False
+04:14:29,CAM-07,Storage Area,PPE violation,MEDIUM,95,False,False
+04:14:30,CAM-03,North Pit,PPE violation,MEDIUM,92,False,False
+04:14:30,CAM-04,South Pit,PPE violation,MEDIUM,96,False,False
+04:14:31,CAM-05,Conveyor Zone,PPE violation,MEDIUM,95,False,False
+04:14:31,CAM-06,Processing Area,PPE violation,MEDIUM,96,False,False
+04:14:31,CAM-07,Storage Area,PPE violation,MEDIUM,93,False,False
+04:14:32,CAM-03,North Pit,PPE violation,MEDIUM,91,False,False
+04:14:32,CAM-04,South Pit,PPE violation,MEDIUM,95,False,False
+04:14:32,CAM-05,Conveyor Zone,PPE violation,HIGH,90,False,False
+04:14:33,CAM-06,Processing Area,PPE violation,MEDIUM,96,False,False
+04:14:33,CAM-07,Storage Area,PPE violation,MEDIUM,95,False,False
+04:14:34,CAM-03,North Pit,PPE violation,MEDIUM,94,False,False
+04:14:34,CAM-04,South Pit,Hazardous activity pattern,CRITICAL,93,True,False
+04:14:35,CAM-05,Conveyor Zone,PPE violation,HIGH,89,False,False
+04:14:35,CAM-06,Processing Area,PPE violation,MEDIUM,96,False,False
+04:14:35,CAM-07,Storage Area,PPE violation,MEDIUM,94,False,False
+04:14:35,CAM-03,North Pit,PPE violation,MEDIUM,90,False,False
+04:14:36,CAM-04,South Pit,Hazardous activity pattern,CRITICAL,96,True,False
+04:14:36,CAM-05,Conveyor Zone,PPE violation,HIGH,91,False,False
+04:14:37,CAM-06,Processing Area,PPE violation,MEDIUM,92,False,False
+04:14:38,CAM-07,Storage Area,PPE violation,MEDIUM,90,False,False
+04:14:38,CAM-03,North Pit,PPE violation,MEDIUM,95,False,False
+04:14:38,CAM-04,South Pit,Hazardous activity pattern,HIGH,96,True,False
+04:14:39,CAM-05,Conveyor Zone,PPE violation,HIGH,89,False,False
+04:14:39,CAM-06,Processing Area,PPE violation,MEDIUM,89,False,False
+04:14:40,CAM-07,Storage Area,Routine movement,INFO,88,True,False
+04:14:40,CAM-03,North Pit,PPE violation,MEDIUM,96,False,False
+04:14:41,CAM-04,South Pit,Hazardous activity pattern,HIGH,89,True,False
+04:14:41,CAM-05,Conveyor Zone,PPE violation,HIGH,92,False,False
+04:14:41,CAM-06,Processing Area,PPE violation,MEDIUM,97,False,False
+04:14:42,CAM-07,Storage Area,Routine movement,INFO,88,True,False
+04:14:43,CAM-03,North Pit,PPE violation,MEDIUM,94,False,False
+04:14:43,CAM-04,South Pit,Hazardous activity pattern,HIGH,94,True,False
+04:14:44,CAM-05,Conveyor Zone,PPE violation,HIGH,92,False,False
+04:14:44,CAM-06,Processing Area,PPE violation,HIGH,90,False,False
+04:14:44,CAM-07,Storage Area,Routine movement,INFO,96,True,False
+04:14:45,CAM-03,North Pit,Hazardous activity pattern,HIGH,92,True,False
+04:14:45,CAM-04,South Pit,Hazardous activity pattern,HIGH,97,True,False
+04:14:46,CAM-05,Conveyor Zone,PPE violation,HIGH,96,False,False
+04:14:46,CAM-06,Processing Area,PPE violation,HIGH,89,False,False
+04:14:47,CAM-07,Storage Area,Routine movement,INFO,92,True,False
+04:14:47,CAM-03,North Pit,PPE violation,MEDIUM,97,False,False
+04:14:47,CAM-04,South Pit,Hazardous activity pattern,HIGH,90,True,False
+04:14:48,CAM-05,Conveyor Zone,PPE violation,HIGH,90,False,False
+04:14:48,CAM-06,Processing Area,PPE violation,MEDIUM,89,False,False
+04:14:49,CAM-07,Storage Area,PPE violation,MEDIUM,93,False,False
+04:14:49,CAM-03,North Pit,PPE violation,MEDIUM,97,False,False
+04:14:49,CAM-04,South Pit,Hazardous activity pattern,CRITICAL,88,True,False
+04:14:50,CAM-05,Conveyor Zone,PPE violation,HIGH,97,False,False
+04:14:50,CAM-06,Processing Area,PPE violation,MEDIUM,88,False,False
+04:14:50,CAM-07,Storage Area,PPE violation,MEDIUM,91,False,False
+04:14:51,CAM-03,North Pit,PPE violation,MEDIUM,97,False,False
+04:14:51,CAM-04,South Pit,PPE violation,MEDIUM,89,False,False
+04:14:52,CAM-05,Conveyor Zone,PPE violation,HIGH,89,False,False
+04:14:52,CAM-06,Processing Area,PPE violation,MEDIUM,94,False,False
+04:14:52,CAM-07,Storage Area,PPE violation,MEDIUM,93,False,False
+04:14:53,CAM-03,North Pit,PPE violation,MEDIUM,95,False,False
+04:14:56,CAM-04,South Pit,PPE violation,MEDIUM,89,False,False
+04:14:59,CAM-05,Conveyor Zone,PPE violation,HIGH,93,False,False
+04:15:01,CAM-06,Processing Area,PPE violation,MEDIUM,92,False,False
+04:15:03,CAM-07,Storage Area,PPE violation,MEDIUM,90,False,True
+04:15:05,CAM-03,North Pit,PPE violation,MEDIUM,97,False,False
+04:15:07,CAM-04,South Pit,PPE violation,MEDIUM,88,False,False
+04:15:10,CAM-05,Conveyor Zone,PPE violation,HIGH,92,False,False
+04:15:13,CAM-06,Processing Area,PPE violation,MEDIUM,94,False,False
+04:15:15,CAM-07,Storage Area,Hazardous activity pattern,HIGH,97,True,False
+04:15:18,CAM-03,North Pit,PPE violation,MEDIUM,89,False,False
+04:15:24,CAM-04,South Pit,PPE violation,MEDIUM,95,False,False
+04:15:29,CAM-05,Conveyor Zone,PPE violation,HIGH,91,False,False
+04:15:37,CAM-06,Processing Area,PPE violation,MEDIUM,93,False,False
+04:15:42,CAM-07,Storage Area,Hazardous activity pattern,HIGH,95,True,False
+04:15:45,CAM-03,North Pit,PPE violation,MEDIUM,90,False,False
+04:15:48,CAM-04,South Pit,PPE violation,MEDIUM,92,False,False
+04:15:51,CAM-05,Conveyor Zone,PPE violation,HIGH,97,False,False
+04:15:55,CAM-06,Processing Area,PPE violation,MEDIUM,94,False,False
+04:15:59,CAM-07,Storage Area,Hazardous activity pattern,HIGH,94,True,False
+04:16:01,CAM-03,North Pit,PPE violation,MEDIUM,95,False,False
+04:16:05,CAM-04,South Pit,PPE violation,MEDIUM,97,False,False

@@ -546,7 +546,9 @@
     m.classList.remove('is-open'); m.setAttribute('aria-hidden','true');
   }
   dashboard.querySelectorAll('[data-open]').forEach(btn => btn.addEventListener('click', () => openModal(btn.dataset.open)));
-  dashboard.querySelectorAll('[data-close]').forEach(btn => btn.addEventListener('click', () => closeModal(btn.dataset.close)));
+  document.querySelectorAll('[data-close]').forEach(btn =>
+    btn.addEventListener('click', () => closeModal(btn.dataset.close))
+);
   dashboard.querySelectorAll('.modal-overlay').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) closeModal(m.id.replace('-modal','')); }));
   document.addEventListener('keydown', e => { if (e.key === 'Escape') dashboard.querySelectorAll('.modal-overlay.is-open').forEach(m => closeModal(m.id.replace('-modal',''))); });
 
