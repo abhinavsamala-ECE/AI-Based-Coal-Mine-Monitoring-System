@@ -144,9 +144,9 @@ def feature_row_from_observation(observation: dict) -> dict:
 
 
 def append_csv(path: Path, row: dict) -> None:
-    # Vercel's deployed filesystem is read-only.
-    # Runtime CSV persistence is kept locally, but skipped
-    # on Vercel so live telemetry requests can complete.
+    # Vercel's deployed application filesystem is read-only.
+    # Keep CSV persistence locally, but skip runtime file writes
+    # on Vercel so live telemetry can still be returned.
     if os.getenv("VERCEL") == "1":
         return
 
