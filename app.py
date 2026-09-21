@@ -33,6 +33,7 @@ DATA_DIR.mkdir(exist_ok=True)
 SENSOR_HISTORY_PATH = DATA_DIR / "sensor_history.csv"
 CAMERA_HISTORY_PATH = DATA_DIR / "camera_events.csv"
 INCIDENT_HISTORY_PATH = DATA_DIR / "incident_history.csv"
+SEISMIC_HISTORY_PATH = DATA_DIR / "seismic_events.csv"
 
 # ---------------------------------------------------------------------
 # Prototype state. Historical telemetry is persisted to CSV so the model
@@ -51,6 +52,23 @@ last_incident = None
 training_rows_since_retrain = 0
 last_retrain_at = None
 state_lock = threading.Lock()
+# ---------------------------------------------------------------------
+# Seismic monitoring simulator
+# Prototype-only simulated seismic state.
+# This is not a validated geotechnical/seismological safety model.
+# ---------------------------------------------------------------------
+
+SEISMIC_ZONE_COORDS = {
+    "North Pit": (18.0, 12.0),
+    "South Pit": (-16.0, -11.0),
+    "Conveyor Zone": (2.0, -3.0),
+    "Processing Area": (12.0, -18.0),
+    "Storage Area": (-12.0, 18.0),
+}
+
+seismic_state = {}
+
+seismic_event_counter = 0
 
 RISK_ORDER = {"LOW": 1, "MEDIUM": 2, "HIGH": 3, "CRITICAL": 4}
 ZONES = {
@@ -183,106 +201,853 @@ def update_compliance_from_observation(observation: dict) -> None:
 
     for check in compliance_checks:
         name = check["check"]
+
         if name == "PPE inspection":
             check["status"] = "Warning" if ppe >= 3 else "Compliant"
-            check["action"] = "Review PPE compliance" if ppe >= 3 else "-"
+            check["action"] = (
+                "Review PPE compliance" if ppe >= 3 else "-"
+            )
+
         elif name == "Ventilation check":
-            check["status"] = "Warning" if ventilation == "poor" else "Compliant"
-            check["action"] = "Inspect ventilation" if ventilation == "poor" else "-"
+            check["status"] = (
+                "Warning" if ventilation == "poor" else "Compliant"
+            )
+            check["action"] = (
+                "Inspect ventilation" if ventilation == "poor" else "-"
+            )
+
         elif name == "Equipment inspection":
-            check["status"] = "Pending" if equip_health < 75 else "Compliant"
-            check["action"] = "Inspect equipment" if equip_health < 75 else "-"
+            check["status"] = (
+                "Pending" if equip_health < 75 else "Compliant"
+            )
+            check["action"] = (
+                "Inspect equipment" if equip_health < 75 else "-"
+            )
+
         elif name == "Safety checklist":
-            check["status"] = "Warning" if slope < 70 else "Compliant"
-            check["action"] = "Inspect slope conditions" if slope < 70 else "-"
+            check["status"] = (
+                "Warning" if slope < 70 else "Compliant"
+            )
+            check["action"] = (
+                "Inspect slope conditions" if slope < 70 else "-"
+            )
+
         check["last_checked"] = "Just now"
 
 
-def current_zone_workers(zone: str, observation: dict) -> list[dict]:
+# ---------------------------------------------------------------------
+# Seismic simulation
+# ---------------------------------------------------------------------
+
+def _seismic_next_event_id() -> str:
+    global seismic_event_counter
+
+    seismic_event_counter += 1
+
+    return f"SEIS-{seismic_event_counter:05d}"
+
+
+def _seismic_distance_km(
+    zone: str,
+    event_x: float,
+    event_y: float,
+) -> float:
+    """
+    Calculate horizontal distance from the event origin to the monitored
+    zone reference point.
+
+    Coordinates are prototype mine-local coordinates.
+    """
+
+    zone_x, zone_y = SEISMIC_ZONE_COORDS.get(
+        zone,
+        (0.0, 0.0),
+    )
+
+    horizontal_distance = math.sqrt(
+        (event_x - zone_x) ** 2
+        + (event_y - zone_y) ** 2
+    )
+
+    # Convert the prototype coordinate scale into an approximate
+    # local seismic distance and prevent zero-distance singularities.
+    return max(0.05, horizontal_distance / 10.0)
+
+
+def _seismic_pga(
+    magnitude: float,
+    distance_km: float,
+    depth_m: float,
+) -> float:
+    """
+    Approximate peak ground acceleration.
+
+    This is a conceptual prototype attenuation relationship.
+    It is NOT a validated mine-specific seismic hazard equation.
+    """
+
+    depth_factor = math.exp(-depth_m / 180.0)
+
+    log10_pga = (
+        -3.0
+        + (0.55 * magnitude)
+        - (0.90 * math.log10(distance_km + 0.10))
+    )
+
+    pga_g = (10 ** log10_pga) * depth_factor
+
+    return round(
+        max(0.001, min(0.35, pga_g)),
+        4,
+    )
+
+
+def _seismic_ground_velocity(
+    pga_g: float,
+    frequency_hz: float,
+) -> float:
+    """
+    Approximate ground velocity from PGA and dominant frequency.
+
+    Returned in mm/s.
+    """
+
+    frequency_hz = max(0.5, frequency_hz)
+
+    acceleration = pga_g * 9.80665
+
+    velocity_m_s = (
+        acceleration
+        / (2 * math.pi * frequency_hz)
+    )
+
+    velocity_mm_s = velocity_m_s * 1000
+
+    return round(
+        max(0.1, min(250.0, velocity_mm_s)),
+        2,
+    )
+
+
+def _seismic_severity(
+    pga: float,
+    ground_velocity: float,
+    frequency: float,
+    duration: float,
+    recent_events: int,
+) -> tuple[str, float]:
+    """
+    Determine seismic status from measured/simulated ground motion.
+
+    Magnitude alone does NOT determine local severity.
+    """
+
+    score = 0.0
+
+    # PGA contribution
+    if pga >= 0.15:
+        score += 12
+    elif pga >= 0.08:
+        score += 9
+    elif pga >= 0.03:
+        score += 5
+    elif pga >= 0.01:
+        score += 2
+
+    # Ground velocity contribution
+    if ground_velocity >= 100:
+        score += 5
+    elif ground_velocity >= 50:
+        score += 3
+    elif ground_velocity >= 20:
+        score += 1
+
+    # Frequency contribution
+    if 2.0 <= frequency <= 10.0:
+        score += 1.5
+
+    # Longer shaking adds exposure
+    if duration >= 12:
+        score += 2
+    elif duration >= 7:
+        score += 1
+
+    # Repeated activity contributes to the local condition
+    if recent_events >= 5:
+        score += 3
+    elif recent_events >= 3:
+        score += 1.5
+
+    score = min(20.0, score)
+
+    if score >= 15:
+        severity = "CRITICAL"
+    elif score >= 10:
+        severity = "HIGH"
+    elif score >= 5:
+        severity = "ELEVATED"
+    else:
+        severity = "NORMAL"
+
+    return severity, round(score, 2)
+
+
+def simulate_seismic_state() -> dict:
+    """
+    Generate one coherent seismic state for every mine zone.
+
+    This is a software simulation for the prototype.
+    It is not a validated geotechnical/seismological safety model.
+    """
+
+    global seismic_state
+
+    generated_events = []
+
+    # Make sure every zone has an initialized state.
+    for zone in MINE_ZONES:
+        if zone not in seismic_state:
+            seismic_state[zone] = {
+                "event_id": None,
+                "timestamp": None,
+                "x": SEISMIC_ZONE_COORDS.get(zone, (0.0, 0.0))[0],
+                "y": SEISMIC_ZONE_COORDS.get(zone, (0.0, 0.0))[1],
+                "depth": 0.0,
+                "magnitude": 0.0,
+                "frequency": 1.0,
+                "dominant_frequency": 1.0,
+                "pga": 0.001,
+                "ground_velocity": 0.1,
+                "duration": 0.0,
+                "severity": "NORMAL",
+                "status": "NORMAL",
+                "risk_contribution": 0.0,
+                "event_age": 999,
+                "recent_events": 0,
+                "active": False,
+            }
+
+    for zone in MINE_ZONES:
+        state = seismic_state[zone]
+
+        # Age the current event.
+        state["event_age"] = state.get("event_age", 999) + 1
+
+        # -------------------------------------------------------------
+        # Decide whether a new seismic event begins.
+        # -------------------------------------------------------------
+
+        event_probability = 0.07
+
+        current_risk = zone_status.get(zone, "LOW")
+
+        if current_risk == "MEDIUM":
+            event_probability += 0.02
+        elif current_risk == "HIGH":
+            event_probability += 0.035
+        elif current_risk == "CRITICAL":
+            event_probability += 0.05
+
+        new_event = (
+            not state.get("active", False)
+            and random.random() < event_probability
+        )
+
+        if new_event:
+            zone_x, zone_y = SEISMIC_ZONE_COORDS.get(
+                zone,
+                (0.0, 0.0),
+            )
+
+            event_x = zone_x + random.uniform(-4.0, 4.0)
+            event_y = zone_y + random.uniform(-4.0, 4.0)
+
+            magnitude = round(
+                random.choices(
+                    [
+                        random.uniform(0.7, 1.5),
+                        random.uniform(1.5, 2.4),
+                        random.uniform(2.4, 3.3),
+                        random.uniform(3.3, 3.9),
+                    ],
+                    weights=[58, 28, 11, 3],
+                    k=1,
+                )[0],
+                2,
+            )
+
+            depth = round(
+                random.uniform(25, 180),
+                1,
+            )
+
+            frequency = round(
+                random.uniform(1.5, 12.0),
+                2,
+            )
+
+            duration = round(
+                random.uniform(3.0, 18.0),
+                1,
+            )
+
+            distance = _seismic_distance_km(
+                zone,
+                event_x,
+                event_y,
+            )
+
+            pga = _seismic_pga(
+                magnitude,
+                distance,
+                depth,
+            )
+
+            ground_velocity = _seismic_ground_velocity(
+                pga,
+                frequency,
+            )
+
+            state["event_id"] = _seismic_next_event_id()
+            state["timestamp"] = current_iso()
+            state["x"] = round(event_x, 2)
+            state["y"] = round(event_y, 2)
+            state["depth"] = depth
+            state["magnitude"] = magnitude
+            state["frequency"] = frequency
+            state["dominant_frequency"] = frequency
+            state["pga"] = pga
+            state["ground_velocity"] = ground_velocity
+            state["duration"] = duration
+            state["event_age"] = 0
+            state["active"] = True
+
+            state["recent_events"] = min(
+                20,
+                state.get("recent_events", 0) + 1,
+            )
+
+            severity, contribution = _seismic_severity(
+                pga,
+                ground_velocity,
+                frequency,
+                duration,
+                state["recent_events"],
+            )
+
+            state["severity"] = severity
+            state["status"] = severity
+            state["risk_contribution"] = contribution
+
+            append_csv(
+                SEISMIC_HISTORY_PATH,
+                {
+                    "event_id": state["event_id"],
+                    "timestamp": state["timestamp"],
+                    "zone": zone,
+                    "x": state["x"],
+                    "y": state["y"],
+                    "depth": state["depth"],
+                    "magnitude": state["magnitude"],
+                    "frequency": state["frequency"],
+                    "dominant_frequency": state[
+                        "dominant_frequency"
+                    ],
+                    "pga": state["pga"],
+                    "ground_velocity": state[
+                        "ground_velocity"
+                    ],
+                    "duration": state["duration"],
+                    "severity": state["severity"],
+                    "status": state["status"],
+                    "risk_contribution": state[
+                        "risk_contribution"
+                    ],
+                },
+            )
+
+            generated_events.append(dict(state))
+
+        # -------------------------------------------------------------
+        # Active event decay.
+        # -------------------------------------------------------------
+
+        elif state.get("active", False):
+            progress = state["event_age"] / max(
+                state.get("duration", 5),
+                1,
+            )
+
+            if progress >= 1.0:
+                state["active"] = False
+                state["status"] = "NORMAL"
+                state["severity"] = "NORMAL"
+
+                state["pga"] = round(
+                    state["pga"] * 0.35,
+                    4,
+                )
+
+                state["ground_velocity"] = round(
+                    state["ground_velocity"] * 0.35,
+                    2,
+                )
+
+                state["risk_contribution"] = round(
+                    state["risk_contribution"] * 0.35,
+                    2,
+                )
+
+            else:
+                # Envelope: rise toward peak, then decay.
+                if progress < 0.25:
+                    envelope = progress / 0.25
+                else:
+                    envelope = max(
+                        0.05,
+                        1.0
+                        - ((progress - 0.25) / 0.75),
+                    )
+
+                envelope = max(
+                    0.05,
+                    min(1.0, envelope),
+                )
+
+                state["pga"] = round(
+                    max(
+                        0.001,
+                        state["pga"] * envelope,
+                    ),
+                    4,
+                )
+
+                state["ground_velocity"] = round(
+                    max(
+                        0.1,
+                        state["ground_velocity"] * envelope,
+                    ),
+                    2,
+                )
+
+                severity, contribution = _seismic_severity(
+                    state["pga"],
+                    state["ground_velocity"],
+                    state["frequency"],
+                    state["duration"],
+                    state["recent_events"],
+                )
+
+                state["severity"] = severity
+                state["status"] = severity
+                state["risk_contribution"] = contribution
+
+        # -------------------------------------------------------------
+        # Quiet/background period.
+        # -------------------------------------------------------------
+
+        else:
+            state["pga"] = round(
+                max(
+                    0.001,
+                    state.get("pga", 0.001) * 0.92,
+                ),
+                4,
+            )
+
+            state["ground_velocity"] = round(
+                max(
+                    0.1,
+                    state.get("ground_velocity", 0.1) * 0.92,
+                ),
+                2,
+            )
+
+            background_frequency = round(
+                random.uniform(1.0, 5.0),
+                2,
+            )
+
+            state["frequency"] = background_frequency
+            state["dominant_frequency"] = background_frequency
+            state["status"] = "NORMAL"
+            state["severity"] = "NORMAL"
+
+            state["risk_contribution"] = round(
+                min(
+                    2.0,
+                    state["pga"] * 20,
+                ),
+                2,
+            )
+
+        # -------------------------------------------------------------
+        # Slowly forget old events.
+        # -------------------------------------------------------------
+
+        if state.get("event_age", 999) > 25:
+            state["recent_events"] = max(
+                0,
+                state.get("recent_events", 0) - 1,
+            )
+
+    return {
+        "zones": {
+            zone: dict(seismic_state[zone])
+            for zone in MINE_ZONES
+        },
+        "events": generated_events,
+    }
+
+
+def current_zone_workers(
+    zone: str,
+    observation: dict,
+) -> list[dict]:
+
     count = int(observation.get("worker_count", 0))
-    base = {"North Pit": 101, "South Pit": 201, "Conveyor Zone": 301, "Processing Area": 401, "Storage Area": 501}[zone]
+
+    base = {
+        "North Pit": 101,
+        "South Pit": 201,
+        "Conveyor Zone": 301,
+        "Processing Area": 401,
+        "Storage Area": 501,
+    }[zone]
+
     people = []
+
     for i in range(min(count, 18)):
-        angle = (i / max(1, min(count, 18))) * math.tau
+        angle = (
+            i / max(1, min(count, 18))
+        ) * math.tau
+
         radius = 5 + (i % 4) * 1.5
-        people.append({
-            "id": f"W-{base+i:04d}",
-            "x": round(math.cos(angle) * radius, 2),
-            "z": round(math.sin(angle) * radius, 2),
-            "distance_to_hazard": round(max(2, float(observation.get("worker_hazard_distance", 80)) + random.uniform(-5, 5)), 1),
-            "ppe": "OK" if i >= int(observation.get("ppe_violations", 0)) else "VIOLATION",
-        })
+
+        people.append(
+            {
+                "id": f"W-{base + i:04d}",
+                "x": round(
+                    math.cos(angle) * radius,
+                    2,
+                ),
+                "z": round(
+                    math.sin(angle) * radius,
+                    2,
+                ),
+                "distance_to_hazard": round(
+                    max(
+                        2,
+                        float(
+                            observation.get(
+                                "worker_hazard_distance",
+                                80,
+                            )
+                        )
+                        + random.uniform(-5, 5),
+                    ),
+                    1,
+                ),
+                "ppe": (
+                    "OK"
+                    if i >= int(
+                        observation.get(
+                            "ppe_violations",
+                            0,
+                        )
+                    )
+                    else "VIOLATION"
+                ),
+            }
+        )
+
     return people
 
 
 def simulate_observation(zone: str) -> dict:
     base = zone_observations[zone]
+
     risk = zone_status.get(zone, "LOW")
     regime = RISK_ORDER.get(risk, 1)
+
     def drift(name, amount, lo, hi):
-        center = float(base.get(name, (lo + hi) / 2))
-        return round(max(lo, min(hi, center + random.uniform(-amount, amount))), 2)
+        center = float(
+            base.get(
+                name,
+                (lo + hi) / 2,
+            )
+        )
+
+        return round(
+            max(
+                lo,
+                min(
+                    hi,
+                    center + random.uniform(
+                        -amount,
+                        amount,
+                    ),
+                ),
+            ),
+            2,
+        )
 
     # Mostly stable telemetry with correlated excursions.
-    hazard_burst = random.random() < (0.08 + regime * 0.035)
-    methane = drift("methane", .16 if not hazard_burst else .55, .05, 3.6)
-    temperature = drift("temperature", 2.0 if not hazard_burst else 6.0, 20, 98)
-    dust = drift("dust", 8 if not hazard_burst else 30, 3, 320)
-    vibration = drift("vibration", .45 if not hazard_burst else 1.6, .05, 12)
-    if hazard_burst:
-        methane = min(3.6, methane + random.uniform(.25, .8))
-        temperature = min(98, temperature + random.uniform(3, 11))
-        dust = min(320, dust + random.uniform(15, 65))
-        vibration = min(12, vibration + random.uniform(.4, 2.8))
+    hazard_burst = random.random() < (
+        0.08 + regime * 0.035
+    )
 
-    ventilation = base.get("ventilation_status", "good")
-    if hazard_burst and random.random() < .34:
-        ventilation = random.choice(["moderate", "poor"])
-    elif random.random() < .08:
-        ventilation = random.choice(["good", "moderate"])
+    methane = drift(
+        "methane",
+        0.16 if not hazard_burst else 0.55,
+        0.05,
+        3.6,
+    )
+
+    temperature = drift(
+        "temperature",
+        2.0 if not hazard_burst else 6.0,
+        20,
+        98,
+    )
+
+    dust = drift(
+        "dust",
+        8 if not hazard_burst else 30,
+        3,
+        320,
+    )
+
+    vibration = drift(
+        "vibration",
+        0.45 if not hazard_burst else 1.6,
+        0.05,
+        12,
+    )
+
+    if hazard_burst:
+        methane = min(
+            3.6,
+            methane + random.uniform(0.25, 0.8),
+        )
+
+        temperature = min(
+            98,
+            temperature + random.uniform(3, 11),
+        )
+
+        dust = min(
+            320,
+            dust + random.uniform(15, 65),
+        )
+
+        vibration = min(
+            12,
+            vibration + random.uniform(0.4, 2.8),
+        )
+
+    ventilation = base.get(
+        "ventilation_status",
+        "good",
+    )
+
+    if hazard_burst and random.random() < 0.34:
+        ventilation = random.choice(
+            ["moderate", "poor"]
+        )
+    elif random.random() < 0.08:
+        ventilation = random.choice(
+            ["good", "moderate"]
+        )
 
     obs = {
         "methane": methane,
-        "co": drift("co", 1.8 if not hazard_burst else 5, .2, 55),
-        "temperature": round(temperature, 2),
-        "humidity": drift("humidity", 3.5, 20, 99),
-        "dust": round(dust, 2),
-        "vibration": round(vibration, 2),
-        "noise": drift("noise", 4 if not hazard_burst else 10, 35, 125),
-        "worker_count": int(max(0, min(95, round(float(base.get("worker_count", 20)) + random.randint(-3, 4))))),
-        "worker_hazard_distance": drift("worker_hazard_distance", 7 if not hazard_burst else 18, 2, 120),
-        "ppe_violations": int(max(0, min(10, int(base.get("ppe_violations", 0)) + random.choice([-1, 0, 0, 1, 2] if hazard_burst else [-1, 0, 0, 0, 1])))),
-        "equipment_temperature": drift("equipment_temperature", 3.5 if not hazard_burst else 9, 28, 112),
-        "equipment_health": drift("equipment_health", 2.5 if not hazard_burst else 6, 35, 100),
-        "slope_stability": drift("slope_stability", 2.5 if not hazard_burst else 7, 20, 100),
-        "wind_speed": drift("wind_speed", 3.5, 0, 55),
-        "rainfall": drift("rainfall", 4 if not hazard_burst else 9, 0, 55),
-        "visibility": drift("visibility", 0.7 if not hazard_burst else 2.4, .6, 15),
+
+        "co": drift(
+            "co",
+            1.8 if not hazard_burst else 5,
+            0.2,
+            55,
+        ),
+
+        "temperature": round(
+            temperature,
+            2,
+        ),
+
+        "humidity": drift(
+            "humidity",
+            3.5,
+            20,
+            99,
+        ),
+
+        "dust": round(
+            dust,
+            2,
+        ),
+
+        "vibration": round(
+            vibration,
+            2,
+        ),
+
+        "noise": drift(
+            "noise",
+            4 if not hazard_burst else 10,
+            35,
+            125,
+        ),
+
+        "worker_count": int(
+            max(
+                0,
+                min(
+                    95,
+                    round(
+                        float(
+                            base.get(
+                                "worker_count",
+                                20,
+                            )
+                        )
+                        + random.randint(-3, 4)
+                    ),
+                ),
+            )
+        ),
+
+        "worker_hazard_distance": drift(
+            "worker_hazard_distance",
+            7 if not hazard_burst else 18,
+            2,
+            120,
+        ),
+
+        "ppe_violations": int(
+            max(
+                0,
+                min(
+                    10,
+                    int(
+                        base.get(
+                            "ppe_violations",
+                            0,
+                        )
+                    )
+                    + random.choice(
+                        [-1, 0, 0, 1, 2]
+                        if hazard_burst
+                        else [-1, 0, 0, 0, 1]
+                    ),
+                ),
+            )
+        ),
+
+        "equipment_temperature": drift(
+            "equipment_temperature",
+            3.5 if not hazard_burst else 9,
+            28,
+            112,
+        ),
+
+        "equipment_health": drift(
+            "equipment_health",
+            2.5 if not hazard_burst else 6,
+            35,
+            100,
+        ),
+
+        "slope_stability": drift(
+            "slope_stability",
+            2.5 if not hazard_burst else 7,
+            20,
+            100,
+        ),
+
+        "wind_speed": drift(
+            "wind_speed",
+            3.5,
+            0,
+            55,
+        ),
+
+        "rainfall": drift(
+            "rainfall",
+            4 if not hazard_burst else 9,
+            0,
+            55,
+        ),
+
+        "visibility": drift(
+            "visibility",
+            0.7 if not hazard_burst else 2.4,
+            0.6,
+            15,
+        ),
+
         "ventilation_status": ventilation,
     }
-    obs["equipment_overheating"] = 1 if obs["equipment_temperature"] >= 84 else 0
+
+    obs["equipment_overheating"] = (
+        1
+        if obs["equipment_temperature"] >= 84
+        else 0
+    )
+
     obs["last_analysis"] = current_time()
+
     return obs
 
 
-def camera_event_for_zone(zone: str, observation: dict, risk: str) -> dict:
-    ppe = int(observation.get("ppe_violations", 0))
-    restricted = float(observation.get("worker_hazard_distance", 100)) < 15
+def camera_event_for_zone(
+    zone: str,
+    observation: dict,
+    risk: str,
+) -> dict:
+
+    ppe = int(
+        observation.get(
+            "ppe_violations",
+            0,
+        )
+    )
+
+    restricted = (
+        float(
+            observation.get(
+                "worker_hazard_distance",
+                100,
+            )
+        )
+        < 15
+    )
+
     event_type = "Routine movement"
     confidence = random.randint(88, 97)
     severity = "INFO"
+
     if ppe > 0:
         event_type = "PPE violation"
-        severity = "HIGH" if ppe >= 3 else "MEDIUM"
+        severity = (
+            "HIGH"
+            if ppe >= 3
+            else "MEDIUM"
+        )
+
     elif restricted:
         event_type = "Restricted-zone proximity"
         severity = "HIGH"
+
     elif risk in {"HIGH", "CRITICAL"}:
         event_type = "Hazardous activity pattern"
         severity = risk
+
     return {
         "timestamp": current_time(),
-        "camera": f"CAM-{3 + MINE_ZONES.index(zone):02d}",
+        "camera": (
+            f"CAM-{3 + MINE_ZONES.index(zone):02d}"
+        ),
         "zone": zone,
         "event": event_type,
         "severity": severity,
@@ -293,91 +1058,351 @@ def camera_event_for_zone(zone: str, observation: dict, risk: str) -> dict:
 
 
 def maybe_retrain_model() -> None:
-    global training_rows_since_retrain, last_retrain_at
+    global training_rows_since_retrain
+    global last_retrain_at
+
     if training_rows_since_retrain < 50:
         return
+
     try:
         train(ROOT)
+
         training_rows_since_retrain = 0
         last_retrain_at = current_time()
+
     except Exception as exc:
-        add_audit_entry("Model retraining failed", str(exc))
+        add_audit_entry(
+            "Model retraining failed",
+            str(exc),
+        )
+
+
+def build_incident_replay(zone: str) -> dict:
+    obs = zone_observations[zone]
+
+    confidence = obs.get(
+        "ai_confidence",
+        75,
+    )
+
+    return {
+        "id": make_incident_id(),
+        "timestamp": current_time(),
+        "zone": zone,
+        "severity": zone_status[zone],
+        "summary": (
+            f"AI detected a "
+            f"{zone_status[zone].lower()}-risk pattern "
+            f"in {zone} with "
+            f"{confidence:.0f}% confidence."
+        ),
+        "events": [
+            {
+                "at": "T-00:30",
+                "event": "Baseline telemetry captured",
+                "detail": (
+                    "Sensor stream within operating band."
+                ),
+            },
+            {
+                "at": "T-00:20",
+                "event": "Hazard indicators drifted",
+                "detail": (
+                    "Environmental and operational variables "
+                    "moved away from baseline."
+                ),
+            },
+            {
+                "at": "T-00:10",
+                "event": "Worker proximity changed",
+                "detail": (
+                    "Personnel detected closer to the "
+                    "affected hazard region."
+                ),
+            },
+            {
+                "at": "T-00:04",
+                "event": "Camera event correlated",
+                "detail": (
+                    "Simulated camera flagged an associated "
+                    "safety condition."
+                ),
+            },
+            {
+                "at": "T-00:00",
+                "event": (
+                    f"AI risk → {zone_status[zone]}"
+                ),
+                "detail": (
+                    "Prediction crossed the operator "
+                    "escalation threshold."
+                ),
+            },
+        ],
+    }
 
 
 def update_live_state() -> dict:
-    global live_tick, last_incident, training_rows_since_retrain
+    global live_tick
+    global last_incident
+    global training_rows_since_retrain
+
     ensure_model()
+
     live_tick += 1
+
     newly_critical = []
+
     previous = dict(zone_status)
+
     camera_events = []
+
+    # Update the simulated seismic system before
+    # processing the normal mine telemetry.
+    seismic_update = simulate_seismic_state()
+
+    last_incident = None
 
     for zone in MINE_ZONES:
         observation = simulate_observation(zone)
-        prediction = ml_predict(feature_row_from_observation(observation))
-        zone_observations[zone] = observation
-        zone_status[zone] = prediction["risk"]
-        observation.update({
-            "ai_risk": prediction["risk"],
-            "ai_probability": prediction["probability"],
-            "ai_confidence": prediction["confidence"],
-            "ai_score": prediction["risk_score"],
-            "top_factors": prediction["top_factors"],
-            "distribution": prediction["distribution"],
-        })
 
-        gt = latent_ground_truth(observation)
+        # ---------------------------------------------------------
+        # Add seismic information to the observation.
+        # ---------------------------------------------------------
+
+        seismic_zone = seismic_update["zones"].get(
+            zone,
+            {},
+        )
+
+        observation.update(
+            {
+                "seismic_status": seismic_zone.get(
+                    "status",
+                    "NORMAL",
+                ),
+                "seismic_severity": seismic_zone.get(
+                    "severity",
+                    "NORMAL",
+                ),
+                "seismic_magnitude": seismic_zone.get(
+                    "magnitude",
+                    0.0,
+                ),
+                "seismic_depth": seismic_zone.get(
+                    "depth",
+                    0.0,
+                ),
+                "seismic_pga": seismic_zone.get(
+                    "pga",
+                    0.001,
+                ),
+                "seismic_ground_velocity": seismic_zone.get(
+                    "ground_velocity",
+                    0.1,
+                ),
+                "seismic_frequency": seismic_zone.get(
+                    "frequency",
+                    1.0,
+                ),
+                "seismic_duration": seismic_zone.get(
+                    "duration",
+                    0.0,
+                ),
+                "seismic_risk_contribution": seismic_zone.get(
+                    "risk_contribution",
+                    0.0,
+                ),
+            }
+        )
+
+        prediction = ml_predict(
+            feature_row_from_observation(
+                observation
+            )
+        )
+
+        zone_observations[zone] = observation
+
+        zone_status[zone] = prediction["risk"]
+
+        observation.update(
+            {
+                "ai_risk": prediction["risk"],
+                "ai_probability": prediction["probability"],
+                "ai_confidence": prediction["confidence"],
+                "ai_score": prediction["risk_score"],
+                "top_factors": prediction["top_factors"],
+                "distribution": prediction["distribution"],
+            }
+        )
+
+        gt = latent_ground_truth(
+            observation
+        )
+
         label = class_from_ground_truth(gt)
-        training_row = feature_row_from_observation(observation)
+
+        training_row = feature_row_from_observation(
+            observation
+        )
+
         training_row["risk_class"] = label
-        append_csv(DATA_DIR / "risk_training.csv", training_row)
+
+        append_csv(
+            DATA_DIR / "risk_training.csv",
+            training_row,
+        )
+
         training_rows_since_retrain += 1
 
-        append_csv(SENSOR_HISTORY_PATH, {
-            "timestamp": current_iso(), "zone": zone, **training_row, "model_risk": prediction["risk"],
-            "model_confidence": prediction["confidence"], "synthetic_outcome": label,
-        })
+        append_csv(
+            SENSOR_HISTORY_PATH,
+            {
+                "timestamp": current_iso(),
+                "zone": zone,
+                **training_row,
+                "model_risk": prediction["risk"],
+                "model_confidence": prediction["confidence"],
+                "synthetic_outcome": label,
+            },
+        )
 
-        cam = camera_event_for_zone(zone, observation, prediction["risk"])
+        cam = camera_event_for_zone(
+            zone,
+            observation,
+            prediction["risk"],
+        )
+
         camera_events.append(cam)
-        append_csv(CAMERA_HISTORY_PATH, cam)
 
-        # Alert only on a transition into HIGH/CRITICAL to avoid alert spam.
-        if prediction["risk"] in {"HIGH", "CRITICAL"} and RISK_ORDER[prediction["risk"]] > RISK_ORDER.get(previous.get(zone, "LOW"), 1):
+        append_csv(
+            CAMERA_HISTORY_PATH,
+            cam,
+        )
+
+        # Alert only on a transition into HIGH/CRITICAL
+        # to avoid alert spam.
+        if (
+            prediction["risk"] in {"HIGH", "CRITICAL"}
+            and RISK_ORDER[prediction["risk"]]
+            > RISK_ORDER.get(
+                previous.get(zone, "LOW"),
+                1,
+            )
+        ):
             alert = {
                 "id": make_new_alert_id(),
                 "timestamp": current_time(),
                 "zone": zone,
                 "severity": prediction["risk"],
                 "rule_ids": [],
-                "reason": "; ".join(f"{x['feature'].replace('_',' ').title()} elevated" for x in prediction["top_factors"][:3]),
-                "action": "Restrict access and review the AI risk explanation before response escalation.",
+                "reason": "; ".join(
+                    f"{x['feature'].replace('_', ' ').title()} elevated"
+                    for x in prediction["top_factors"][:3]
+                ),
+                "action": (
+                    "Restrict access and review the "
+                    "AI risk explanation before "
+                    "response escalation."
+                ),
                 "status": "Open",
                 "ai_confidence": prediction["confidence"],
             }
-            alerts.insert(0, alert)
-            add_audit_entry("AI alert generated", f"{alert['id']} ({alert['severity']}) for {zone}.")
+
+            alerts.insert(
+                0,
+                alert,
+            )
+
+            add_audit_entry(
+                "AI alert generated",
+                f"{alert['id']} "
+                f"({alert['severity']}) for {zone}.",
+            )
+
             if prediction["risk"] == "CRITICAL":
                 newly_critical.append(zone)
 
-    # A simulated incident is formed only from HIGH/CRITICAL conditions with people nearby.
-    incident_zone = next((z for z in newly_critical if float(zone_observations[z].get("worker_count", 0)) > 0), None)
+    # A simulated incident is formed only from
+    # HIGH/CRITICAL conditions with people nearby.
+    incident_zone = next(
+        (
+            z
+            for z in newly_critical
+            if float(
+                zone_observations[z].get(
+                    "worker_count",
+                    0,
+                )
+            ) > 0
+        ),
+        None,
+    )
+
     if incident_zone:
-        last_incident = build_incident_replay(incident_zone)
-        append_csv(INCIDENT_HISTORY_PATH, {
-            "incident_id": last_incident["id"], "timestamp": last_incident["timestamp"],
-            "zone": incident_zone, "severity": last_incident["severity"], "summary": last_incident["summary"],
-        })
+        last_incident = build_incident_replay(
+            incident_zone
+        )
 
-    update_compliance_from_observation(zone_observations.get("Processing Area", {}))
-   # maybe_retrain_model()
+        append_csv(
+            INCIDENT_HISTORY_PATH,
+            {
+                "incident_id": last_incident["id"],
+                "timestamp": last_incident["timestamp"],
+                "zone": incident_zone,
+                "severity": last_incident["severity"],
+                "summary": last_incident["summary"],
+            },
+        )
 
-    max_risk = max(zone_status.values(), key=lambda x: RISK_ORDER[x])
-    active_people = sum(int(zone_observations[z].get("worker_count", 0)) for z in MINE_ZONES)
-    active_equipment = sum(ZONES[z]["equipment"] for z in MINE_ZONES)
-    open_alerts = len([a for a in alerts if a["status"] != "Resolved"])
+    update_compliance_from_observation(
+        zone_observations.get(
+            "Processing Area",
+            {},
+        )
+    )
+
+    # maybe_retrain_model()
+
+    max_risk = max(
+        zone_status.values(),
+        key=lambda x: RISK_ORDER[x],
+    )
+
+    active_people = sum(
+        int(
+            zone_observations[z].get(
+                "worker_count",
+                0,
+            )
+        )
+        for z in MINE_ZONES
+    )
+
+    active_equipment = sum(
+        ZONES[z]["equipment"]
+        for z in MINE_ZONES
+    )
+
+    open_alerts = len(
+        [
+            a
+            for a in alerts
+            if a["status"] != "Resolved"
+        ]
+    )
+
     compliance = compliance_summary()
-    compliance_pct = round(compliance.get("Compliant", 0) / max(sum(compliance.values()), 1) * 100)
+
+    compliance_pct = round(
+        compliance.get("Compliant", 0)
+        / max(
+            sum(compliance.values()),
+            1,
+        )
+        * 100
+    )
 
     return {
         "tick": live_tick,
@@ -385,8 +1410,28 @@ def update_live_state() -> dict:
         "zones": zone_status,
         "observations": zone_observations,
         "max_risk": max_risk,
-        "mine_probability": round(sum(zone_observations[z].get("ai_probability", 0) for z in MINE_ZONES) / len(MINE_ZONES), 4),
-        "mine_score": round(sum(zone_observations[z].get("ai_score", 0) for z in MINE_ZONES) / len(MINE_ZONES), 1),
+        "mine_probability": round(
+            sum(
+                zone_observations[z].get(
+                    "ai_probability",
+                    0,
+                )
+                for z in MINE_ZONES
+            )
+            / len(MINE_ZONES),
+            4,
+        ),
+        "mine_score": round(
+            sum(
+                zone_observations[z].get(
+                    "ai_score",
+                    0,
+                )
+                for z in MINE_ZONES
+            )
+            / len(MINE_ZONES),
+            1,
+        ),
         "active_personnel": active_people,
         "active_equipment": active_equipment,
         "open_alerts": open_alerts,
@@ -395,7 +1440,9 @@ def update_live_state() -> dict:
         "newly_critical": newly_critical,
         "last_incident": last_incident,
         "model": model_metadata(),
+        "seismic": seismic_update,
     }
+
 
 
 def build_incident_replay(zone: str) -> dict:
